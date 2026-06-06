@@ -1,0 +1,243 @@
+@import "tailwindcss";
+
+@custom-variant dark (&:where(.dark, .dark *));
+
+@theme {
+  --color-accent-50: #eff6ff;
+  --color-accent-100: #dbeafe;
+  --color-accent-200: #bfdbfe;
+  --color-accent-300: #93c5fd;
+  --color-accent-400: #60a5fa;
+  --color-accent-500: #3b82f6;
+  --color-accent-600: #2563eb;
+  --color-accent-700: #1d4ed8;
+  --color-accent-800: #1e40af;
+  --color-accent-900: #1e3a8a;
+  --color-accent-950: #172554;
+}
+
+:root[data-accent="violet"] {
+  --color-accent-50: #f5f3ff; --color-accent-100: #ede9fe; --color-accent-200: #ddd6fe;
+  --color-accent-300: #c4b5fd; --color-accent-400: #a78bfa; --color-accent-500: #8b5cf6;
+  --color-accent-600: #7c3aed; --color-accent-700: #6d28d9; --color-accent-800: #5b21b6;
+  --color-accent-900: #4c1d95; --color-accent-950: #2e1065;
+}
+:root[data-accent="emerald"] {
+  --color-accent-50: #ecfdf5; --color-accent-100: #d1fae5; --color-accent-200: #a7f3d0;
+  --color-accent-300: #6ee7b7; --color-accent-400: #34d399; --color-accent-500: #10b981;
+  --color-accent-600: #059669; --color-accent-700: #047857; --color-accent-800: #065f46;
+  --color-accent-900: #064e3b; --color-accent-950: #022c22;
+}
+:root[data-accent="rose"] {
+  --color-accent-50: #fff1f2; --color-accent-100: #ffe4e6; --color-accent-200: #fecdd3;
+  --color-accent-300: #fda4af; --color-accent-400: #fb7185; --color-accent-500: #f43f5e;
+  --color-accent-600: #e11d48; --color-accent-700: #be123c; --color-accent-800: #9f1239;
+  --color-accent-900: #881337; --color-accent-950: #4c0519;
+}
+:root[data-accent="amber"] {
+  --color-accent-50: #fffbeb; --color-accent-100: #fef3c7; --color-accent-200: #fde68a;
+  --color-accent-300: #fcd34d; --color-accent-400: #fbbf24; --color-accent-500: #f59e0b;
+  --color-accent-600: #d97706; --color-accent-700: #b45309; --color-accent-800: #92400e;
+  --color-accent-900: #78350f; --color-accent-950: #451a03;
+}
+:root[data-accent="sky"] {
+  --color-accent-50: #f0f9ff; --color-accent-100: #e0f2fe; --color-accent-200: #bae6fd;
+  --color-accent-300: #7dd3fc; --color-accent-400: #38bdf8; --color-accent-500: #0ea5e9;
+  --color-accent-600: #0284c7; --color-accent-700: #0369a1; --color-accent-800: #075985;
+  --color-accent-900: #0c4a6e; --color-accent-950: #082f49;
+}
+
+html,
+body,
+#root {
+  margin: 0;
+  height: 100%;
+}
+
+body {
+  overflow: hidden;
+  font-family: Inter, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto,
+    Helvetica, Arial, sans-serif;
+  background-color: #f3f4f6;
+  color: #111827;
+  -webkit-font-smoothing: antialiased;
+  user-select: none;
+}
+
+.dark body {
+  background-color: #0b0f17;
+  color: #e5e7eb;
+}
+
+input,
+textarea,
+select {
+  user-select: text;
+}
+
+button:not(:disabled),
+[role="button"]:not([aria-disabled="true"]),
+[role="switch"],
+label[for],
+summary,
+a {
+  cursor: pointer;
+}
+button:disabled,
+[aria-disabled="true"] {
+  cursor: not-allowed;
+}
+input:not([type="checkbox"]):not([type="radio"]):not([type="range"]),
+textarea {
+  cursor: text;
+}
+
+.drag-region {
+  -webkit-app-region: drag;
+}
+.no-drag,
+button,
+input,
+select,
+textarea,
+a {
+  -webkit-app-region: no-drag;
+}
+
+*::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+*::-webkit-scrollbar-thumb {
+  background: #d1d5db;
+  border-radius: 4px;
+}
+.dark *::-webkit-scrollbar-thumb {
+  background: #374151;
+}
+*::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+:root {
+  color-scheme: light;
+}
+.dark {
+  color-scheme: dark;
+}
+
+input:-webkit-autofill,
+input:-webkit-autofill:hover,
+input:-webkit-autofill:focus {
+  -webkit-text-fill-color: #1f2937;
+  -webkit-box-shadow: 0 0 0 1000px #ffffff inset;
+  caret-color: #1f2937;
+}
+.dark input:-webkit-autofill,
+.dark input:-webkit-autofill:hover,
+.dark input:-webkit-autofill:focus {
+  -webkit-text-fill-color: #f3f4f6;
+  -webkit-box-shadow: 0 0 0 1000px #374151 inset;
+  caret-color: #f3f4f6;
+}
+
+.dark input[type="datetime-local"]::-webkit-calendar-picker-indicator {
+  filter: invert(1);
+  opacity: 0.65;
+}
+
+.roll-cell {
+  display: inline-block;
+  overflow: hidden;
+  height: 1.1em;
+  line-height: 1.1em;
+  vertical-align: baseline;
+}
+.roll-line {
+  display: block;
+  height: 1.1em;
+  line-height: 1.1em;
+}
+.roll-track {
+  display: block;
+  will-change: transform;
+}
+@keyframes kimai-roll {
+  from {
+    transform: translateY(0);
+  }
+  to {
+    transform: translateY(-1.1em);
+  }
+}
+.roll-anim {
+  animation: kimai-roll 0.36s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+}
+@media (prefers-reduced-motion: reduce) {
+  .roll-anim {
+    animation: none;
+    transform: translateY(-1.1em);
+  }
+}
+
+@keyframes kimai-fade-in {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+@keyframes kimai-fade-up {
+  from {
+    opacity: 0;
+    transform: translateY(7px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+@keyframes kimai-pop-in {
+  from {
+    opacity: 0;
+    transform: scale(0.96);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+@keyframes kimai-dropdown-in {
+  from {
+    opacity: 0;
+    transform: translateY(-4px) scale(0.985);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+.anim-fade-in {
+  animation: kimai-fade-in 0.22s ease-out both;
+}
+.anim-fade-up {
+  animation: kimai-fade-up 0.3s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+.anim-pop-in {
+  animation: kimai-pop-in 0.18s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+.anim-dropdown {
+  transform-origin: top;
+  animation: kimai-dropdown-in 0.16s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .anim-fade-in,
+  .anim-fade-up,
+  .anim-pop-in,
+  .anim-dropdown {
+    animation: none;
+  }
+}

@@ -1,0 +1,90 @@
+{
+  "name": "kimai-tracker",
+  "private": true,
+  "version": "0.1.0",
+  "description": "Kimai Tracker — a fast, lightweight desktop time-tracking app for self-hosted Kimai. Tray popover and floating widget for Windows, macOS and Linux.",
+  "author": {
+    "name": "faeztgh",
+    "url": "https://github.com/faeztgh"
+  },
+  "license": "PolyForm-Noncommercial-1.0.0",
+  "homepage": "https://github.com/faeztgh/kimai-tracker#readme",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/faeztgh/kimai-tracker.git"
+  },
+  "bugs": {
+    "url": "https://github.com/faeztgh/kimai-tracker/issues"
+  },
+  "keywords": [
+    "kimai",
+    "kimai-client",
+    "kimai-desktop",
+    "time-tracking",
+    "time-tracker",
+    "timesheet",
+    "self-hosted",
+    "desktop-app",
+    "electron",
+    "system-tray",
+    "productivity",
+    "windows",
+    "macos",
+    "linux",
+    "faeztgh"
+  ],
+  "main": "./out/main/index.js",
+  "scripts": {
+    "dev": "electron-vite dev",
+    "start": "electron-vite preview",
+    "build": "electron-vite build",
+    "typecheck:node": "tsc --noEmit -p tsconfig.node.json --composite false",
+    "typecheck:web": "tsc --noEmit -p tsconfig.web.json --composite false",
+    "typecheck": "pnpm run typecheck:node && pnpm run typecheck:web",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "test:coverage": "vitest run --coverage",
+    "test:e2e": "playwright test",
+    "test:e2e:ui": "playwright test --ui",
+    "test:all": "pnpm test && pnpm run build && pnpm test:e2e",
+    "pack:dir": "pnpm run build && electron-builder --dir",
+    "dist": "pnpm run build && electron-builder",
+    "dist:win": "pnpm run build && electron-builder --win",
+    "dist:mac": "pnpm run build && electron-builder --mac",
+    "dist:linux": "pnpm run build && electron-builder --linux"
+  },
+  "dependencies": {
+    "electron-updater": "^6.8.3"
+  },
+  "devDependencies": {
+    "@playwright/test": "^1.60.0",
+    "@tailwindcss/vite": "^4.3.0",
+    "@tanstack/react-query": "^5.100.14",
+    "@testing-library/jest-dom": "^6.9.1",
+    "@testing-library/react": "^16.3.2",
+    "@testing-library/user-event": "^14.6.1",
+    "@types/node": "^22.18.0",
+    "@types/react": "^19.1.8",
+    "@types/react-dom": "^19.1.6",
+    "@vitejs/plugin-react": "^4.6.0",
+    "@vitest/coverage-v8": "^4.1.8",
+    "electron": "^42.3.2",
+    "electron-builder": "^26.8.1",
+    "electron-vite": "^5.0.0",
+    "jsdom": "^29.1.1",
+    "react": "^19.1.0",
+    "react-dom": "^19.1.0",
+    "tailwindcss": "^4.3.0",
+    "typescript": "~5.8.3",
+    "vite": "^7.0.4",
+    "vitest": "^4.1.8",
+    "zustand": "^5.0.14"
+  },
+  "pnpm": {
+    "onlyBuiltDependencies": [
+      "electron",
+      "esbuild",
+      "electron-winstaller"
+    ]
+  }
+}

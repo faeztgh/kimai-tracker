@@ -1,0 +1,65 @@
+appId: com.kimaitracker.app
+productName: Kimai Tracker
+copyright: Copyright © 2026 faeztgh
+
+directories:
+  buildResources: build
+  output: release/${version}
+
+# Only the built output + manifest ship in the app; src/ and electron/ source
+# are excluded automatically by this whitelist.
+files:
+  - out/**
+  - package.json
+  - "!**/*.{map,md,ts}"
+
+# Runtime icons (tray + window) — copied to <app>/resources/resources at runtime
+# (see electron/main/resources.ts).
+extraResources:
+  - from: resources
+    to: resources
+    filter: ["**/*"]
+
+asar: true
+compression: maximum
+
+win:
+  target:
+    - target: nsis
+      arch: [x64, arm64]
+  icon: build/icon.png
+  artifactName: ${productName}-${version}-${arch}-setup.${ext}
+
+nsis:
+  oneClick: false
+  perMachine: false
+  allowToChangeInstallationDirectory: true
+  shortcutName: Kimai Tracker
+  createDesktopShortcut: true
+
+mac:
+  target:
+    - target: dmg
+      arch: [x64, arm64]
+  icon: build/icon.png
+  category: public.app-category.productivity
+  # Hardened runtime / notarization require an Apple Developer ID — wire up later.
+
+linux:
+  target:
+    - target: AppImage
+      arch: [x64, arm64]
+    - target: deb
+      arch: [x64, arm64]
+  icon: build/icon.png
+  category: Utility
+  maintainer: faeztgh <faeztgh@users.noreply.github.com>
+  synopsis: Time-tracking widget for self-hosted Kimai
+
+# Auto-update feed (electron-updater). Change owner/repo to your GitHub repo.
+# releaseType: release => assets publish to a public release (so the updater sees them).
+publish:
+  provider: github
+  owner: faeztgh
+  repo: kimai-tracker
+  releaseType: release

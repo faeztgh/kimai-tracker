@@ -1,0 +1,51 @@
+name: Bug report
+description: Something isn't working as expected
+labels: [bug]
+body:
+  - type: markdown
+    attributes:
+      value: Thanks for taking the time to report a bug. Please don't include your API token or server URL.
+  - type: textarea
+    id: what-happened
+    attributes:
+      label: What happened?
+      description: A clear description of the bug, and what you expected instead.
+    validations:
+      required: true
+  - type: textarea
+    id: steps
+    attributes:
+      label: Steps to reproduce
+      placeholder: |
+        1. Go to '...'
+        2. Click '...'
+        3. See error
+    validations:
+      required: true
+  - type: input
+    id: app-version
+    attributes:
+      label: Kimai Tracker version
+      placeholder: e.g. 1.2.0 (see Settings / installer)
+    validations:
+      required: true
+  - type: input
+    id: kimai-version
+    attributes:
+      label: Kimai server version
+      placeholder: e.g. 2.21.0
+  - type: dropdown
+    id: os
+    attributes:
+      label: Operating system
+      options:
+        - Windows
+        - macOS
+        - Linux
+    validations:
+      required: true
+  - type: textarea
+    id: logs
+    attributes:
+      label: Logs / screenshots
+      description: Any relevant errors or screenshots. Redact tokens, URLs, and personal data.
