@@ -5,6 +5,7 @@
   "description": "Kimai Tracker — a fast, lightweight desktop time-tracking app for self-hosted Kimai. Tray popover and floating widget for Windows, macOS and Linux.",
   "author": {
     "name": "faeztgh",
+    "email": "contact@faez.pro",
     "url": "https://github.com/faeztgh"
   },
   "license": "PolyForm-Noncommercial-1.0.0",
@@ -90,11 +91,6 @@
   "build": {
     "appId": "pro.faez.kimaitracker",
     "productName": "Kimai Tracker",
-    "author": {
-      "name": "faeztgh",
-      "email": "contact@faez.pro",
-      "url": "https://github.com/faeztgh"
-    },
     "publish": [
       {
         "provider": "github"
@@ -108,7 +104,6 @@
     "mac": {
       "target": [
         "dmg",
-        "zip"
       ]
     },
     "linux": {
