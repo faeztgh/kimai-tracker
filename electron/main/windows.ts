@@ -39,7 +39,7 @@ export function setTimerRunningIndicator(running: boolean): void {
 }
 
 function windowIcon() {
-  return nativeImage.createFromPath(resourcePath("icon.png"));
+  return nativeImage.createFromPath(resourcePath("icon.ico"));
 }
 
 function loadRenderer(win: BrowserWindow): void {

@@ -86,5 +86,31 @@
       "esbuild",
       "electron-winstaller"
     ]
+  },
+  "build": {
+    "appId": "pro.faez.kimaitracker",
+    "productName": "Kimai Tracker",
+    "publish": [
+      {
+        "provider": "github"
+      }
+    ],
+    "win": {
+      "target": [
+        "nsis"
+      ]
+    },
+    "mac": {
+      "target": [
+        "dmg",
+        "zip"
+      ]
+    },
+    "linux": {
+      "target": [
+        "AppImage",
+        "deb"
+      ]
+    }
   }
 }

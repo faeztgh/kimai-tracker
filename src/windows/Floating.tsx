@@ -29,7 +29,7 @@ export default function Floating() {
         <span className="flex items-center gap-1.5 text-[10px] font-semibold uppercase tracking-wide text-gray-400 dark:text-gray-500">
           <Logo className="h-3.5 w-3.5" />
           {timer && <span className="h-1.5 w-1.5 animate-pulse rounded-full bg-accent-500" />}
-          <span className="max-w-[180px] truncate normal-case" title={alias}>{alias}</span>
+          <span className="max-w-45 truncate normal-case" title={alias}>{alias}</span>
         </span>
         <button
           type="button"

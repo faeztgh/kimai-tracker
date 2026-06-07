@@ -13,7 +13,7 @@ import {
   toggleTimerHotkey,
 } from "./windows";
 
-app.setAppUserModelId("com.kimaitracker.app");
+app.setAppUserModelId("pro.faez.kimai-tracker");
 
 if (!app.requestSingleInstanceLock()) {
   app.quit();
