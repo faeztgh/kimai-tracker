@@ -48,7 +48,7 @@
     "test:e2e:ui": "playwright test --ui",
     "test:all": "pnpm test && pnpm run build && pnpm test:e2e",
     "pack:dir": "pnpm run build && electron-builder --dir",
-    "dist": "pnpm run build && electron-builder",
+    "dist": "pnpm run build && electron-builder --publish always",
     "dist:win": "pnpm run build && electron-builder --win",
     "dist:mac": "pnpm run build && electron-builder --mac",
     "dist:linux": "pnpm run build && electron-builder --linux"
