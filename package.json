@@ -90,6 +90,11 @@
   "build": {
     "appId": "pro.faez.kimaitracker",
     "productName": "Kimai Tracker",
+    "author": {
+      "name": "faeztgh",
+      "email": "contact@faez.pro",
+      "url": "https://github.com/faeztgh"
+    },
     "publish": [
       {
         "provider": "github"
@@ -107,6 +112,7 @@
       ]
     },
     "linux": {
+      "maintainer": "faeztgh <contact@faez.pro>",
       "target": [
         "AppImage",
         "deb"
