@@ -69,4 +69,4 @@ jobs:
       - name: Build and publish
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        run: pnpm exec electron-builder --publish always -c.extraMetadata.version="${{ needs.version.outputs.new_version }}"
+        run: pnpm exec electron-builder --publish always"
