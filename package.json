@@ -103,7 +103,7 @@
     },
     "mac": {
       "target": [
-        "dmg",
+        "dmg"
       ]
     },
     "linux": {
