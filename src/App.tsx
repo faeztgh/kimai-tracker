@@ -64,7 +64,7 @@ function AppShell() {
       <header className="flex items-center justify-between border-b border-gray-200 bg-white px-3.5 py-2.5 dark:border-gray-800 dark:bg-gray-800">
         <div className="flex items-center gap-2">
           <Logo />
-          <span className="max-w-[220px] truncate text-sm font-semibold text-gray-800 dark:text-gray-100" title={alias}>
+          <span className="max-w-55 truncate text-sm font-semibold text-gray-800 dark:text-gray-100" title={alias}>
             {alias}
           </span>
         </div>
