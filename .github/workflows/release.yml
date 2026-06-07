@@ -68,6 +68,5 @@ jobs:
 
       - name: Build and publish
         env:
-          npm_package_version: ${{ needs.version.outputs.new_version }}
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        run: pnpm exec electron-builder --publish always
+        run: pnpm run dist
