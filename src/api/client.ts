@@ -30,7 +30,11 @@ function unwrap<T>(res: BridgeResponse): T {
 
   const text = res.body;
   if (!res.ok) {
-    throw new ApiError(res.status, errorMessage(text, res.status, res.statusText), text);
+    throw new ApiError(
+      res.status,
+      errorMessage(text, res.status, res.statusText),
+      text,
+    );
   }
 
   if (!text) {
@@ -40,7 +44,11 @@ function unwrap<T>(res: BridgeResponse): T {
   return JSON.parse(text) as T;
 }
 
-function errorMessage(text: string, status: number, statusText: string): string {
+function errorMessage(
+  text: string,
+  status: number,
+  statusText: string,
+): string {
   try {
     const data: unknown = JSON.parse(text);
     const details = collectValidationErrors(data);
@@ -63,10 +71,13 @@ function collectValidationErrors(data: unknown): string[] {
     for (const m of e.errors) if (typeof m === "string") out.push(m);
   }
   if (e.children && typeof e.children === "object") {
-    for (const [field, child] of Object.entries(e.children as Record<string, unknown>)) {
+    for (const [field, child] of Object.entries(
+      e.children as Record<string, unknown>,
+    )) {
       const ce = (child as { errors?: unknown })?.errors;
       if (Array.isArray(ce)) {
-        for (const m of ce) if (typeof m === "string") out.push(`${field}: ${m}`);
+        for (const m of ce)
+          if (typeof m === "string") out.push(`${field}: ${m}`);
       }
     }
   }
@@ -74,7 +85,8 @@ function collectValidationErrors(data: unknown): string[] {
   if (out.length === 0 && !("children" in e) && !Array.isArray(e.errors)) {
     for (const [field, val] of Object.entries(e as Record<string, unknown>)) {
       if (Array.isArray(val)) {
-        for (const m of val) if (typeof m === "string") out.push(`${field}: ${m}`);
+        for (const m of val)
+          if (typeof m === "string") out.push(`${field}: ${m}`);
       } else if (typeof val === "string") {
         out.push(`${field}: ${val}`);
       }

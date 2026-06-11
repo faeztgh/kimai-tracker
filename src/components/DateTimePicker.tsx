@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import { createPortal } from "react-dom";
-import { toDatetimeLocalInput } from "../lib/format";
 import { useDismiss } from "../hooks/useDismiss";
+import { toDatetimeLocalInput } from "../lib/format";
 import { flipPosition } from "../lib/popover";
 import { useSettings } from "../store/settings";
 
@@ -45,18 +45,28 @@ function monthGrid(view: Date, weekStart: number): Date[] {
   });
 }
 
-export function DateTimePicker({ value, onChange, placeholder = "Pick date & time" }: Props) {
+export function DateTimePicker({
+  value,
+  onChange,
+  placeholder = "Pick date & time",
+}: Props) {
   const weekStart = useSettings((s) => s.weekStart);
   const selected = useMemo(() => parse(value), [value]);
   const [open, setOpen] = useState(false);
-  const [view, setView] = useState<Date>(() => startOfMonth(selected ?? new Date()));
-  const [pos, setPos] = useState<{ top: number; left: number }>({ top: 0, left: 0 });
+  const [view, setView] = useState<Date>(() =>
+    startOfMonth(selected ?? new Date()),
+  );
+  const [pos, setPos] = useState<{ top: number; left: number }>({
+    top: 0,
+    left: 0,
+  });
   const btnRef = useRef<HTMLButtonElement>(null);
   const popRef = useRef<HTMLDivElement>(null);
 
+  // biome-ignore lint/correctness/useExhaustiveDependencies: sync calendar month only when popover opens
   useEffect(() => {
     if (open) setView(startOfMonth(selected ?? new Date()));
-  }, [open]); // eslint-disable-line react-hooks/exhaustive-deps
+  }, [open]);
 
   useDismiss(open, [btnRef, popRef], () => setOpen(false));
 
@@ -96,7 +106,10 @@ export function DateTimePicker({ value, onChange, placeholder = "Pick date & tim
 
   const today = new Date();
   const grid = monthGrid(view, weekStart);
-  const weekdays = Array.from({ length: 7 }, (_, i) => WEEKDAY_LABELS[(weekStart + i) % 7]);
+  const weekdays = Array.from(
+    { length: 7 },
+    (_, i) => WEEKDAY_LABELS[(weekStart + i) % 7],
+  );
   const hh = selected ? pad(selected.getHours()) : "--";
   const mm = selected ? pad(selected.getMinutes()) : "--";
 
@@ -110,48 +123,84 @@ export function DateTimePicker({ value, onChange, placeholder = "Pick date & tim
           ${open ? "border-accent-400" : "border-gray-300 dark:border-gray-600"}
           bg-white text-gray-800 hover:bg-gray-50 dark:bg-gray-700 dark:text-gray-100 dark:hover:bg-gray-600`}
       >
-        <svg className="h-4 w-4 shrink-0 text-gray-400 dark:text-gray-500" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+        <svg
+          className="h-4 w-4 shrink-0 text-gray-400 dark:text-gray-500"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          strokeWidth="2"
+          strokeLinecap="round"
+          strokeLinejoin="round"
+        >
           <rect x="3" y="4" width="18" height="18" rx="2" />
           <path d="M16 2v4M8 2v4M3 10h18" />
         </svg>
-        <span className={`truncate ${selected ? "" : "text-gray-400 dark:text-gray-500"}`}>{label}</span>
+        <span
+          className={`truncate ${selected ? "" : "text-gray-400 dark:text-gray-500"}`}
+        >
+          {label}
+        </span>
       </button>
 
       {open &&
         createPortal(
           <div
             ref={popRef}
-            style={{ position: "fixed", top: pos.top, left: pos.left, width: POP_W }}
+            style={{
+              position: "fixed",
+              top: pos.top,
+              left: pos.left,
+              width: POP_W,
+            }}
             className="anim-dropdown z-50 rounded-xl border border-gray-200 bg-white p-3 shadow-2xl dark:border-gray-700 dark:bg-gray-800"
           >
             <div className="mb-2 flex items-center justify-between">
-              <button type="button" onClick={() => setView(new Date(view.getFullYear(), view.getMonth() - 1, 1))} className="rounded-md p-1 text-gray-500 hover:bg-gray-100 dark:text-gray-400 dark:hover:bg-gray-700">
+              <button
+                type="button"
+                onClick={() =>
+                  setView(new Date(view.getFullYear(), view.getMonth() - 1, 1))
+                }
+                className="rounded-md p-1 text-gray-500 hover:bg-gray-100 dark:text-gray-400 dark:hover:bg-gray-700"
+              >
                 <Chevron dir="left" />
               </button>
               <span className="text-sm font-semibold text-gray-800 dark:text-gray-100">
-                {view.toLocaleDateString(undefined, { month: "long", year: "numeric" })}
+                {view.toLocaleDateString(undefined, {
+                  month: "long",
+                  year: "numeric",
+                })}
               </span>
-              <button type="button" onClick={() => setView(new Date(view.getFullYear(), view.getMonth() + 1, 1))} className="rounded-md p-1 text-gray-500 hover:bg-gray-100 dark:text-gray-400 dark:hover:bg-gray-700">
+              <button
+                type="button"
+                onClick={() =>
+                  setView(new Date(view.getFullYear(), view.getMonth() + 1, 1))
+                }
+                className="rounded-md p-1 text-gray-500 hover:bg-gray-100 dark:text-gray-400 dark:hover:bg-gray-700"
+              >
                 <Chevron dir="right" />
               </button>
             </div>
 
             <div className="mb-1 grid grid-cols-7 gap-0.5">
               {weekdays.map((w, i) => (
-                <span key={i} className="py-1 text-center text-[10px] font-medium text-gray-400 dark:text-gray-500">
+                <span
+                  // biome-ignore lint/suspicious/noArrayIndexKey: fixed 7-day header
+                  key={i}
+                  className="py-1 text-center text-[10px] font-medium text-gray-400 dark:text-gray-500"
+                >
                   {w}
                 </span>
               ))}
             </div>
 
             <div className="grid grid-cols-7 gap-0.5">
-              {grid.map((d, i) => {
+              {grid.map((d) => {
                 const inMonth = d.getMonth() === view.getMonth();
                 const isSel = selected && sameDay(d, selected);
                 const isToday = sameDay(d, today);
                 return (
                   <button
-                    key={i}
+                    key={d.getTime()}
                     type="button"
                     onClick={() => pickDay(d)}
                     className={`h-8 rounded-md text-center text-xs transition ${
@@ -168,7 +217,15 @@ export function DateTimePicker({ value, onChange, placeholder = "Pick date & tim
 
             <div className="mt-3 flex items-center justify-between border-t border-gray-100 pt-3 dark:border-gray-700">
               <div className="flex items-center gap-1">
-                <svg className="mr-1 h-4 w-4 text-gray-400 dark:text-gray-500" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                <svg
+                  className="mr-1 h-4 w-4 text-gray-400 dark:text-gray-500"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth="2"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                >
                   <circle cx="12" cy="12" r="9" />
                   <path d="M12 7v5l3 2" />
                 </svg>
@@ -197,13 +254,30 @@ function pad(n: number): string {
 
 function Chevron({ dir }: { dir: "left" | "right" }) {
   return (
-    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+    <svg
+      width="16"
+      height="16"
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="2.5"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+    >
       <path d={dir === "left" ? "M15 18l-6-6 6-6" : "M9 18l6-6-6-6"} />
     </svg>
   );
 }
 
-function TimeBox({ value, max, onCommit }: { value: string; max: number; onCommit: (n: number) => void }) {
+function TimeBox({
+  value,
+  max,
+  onCommit,
+}: {
+  value: string;
+  max: number;
+  onCommit: (n: number) => void;
+}) {
   const [draft, setDraft] = useState(value);
   useEffect(() => setDraft(value), [value]);
   return (
@@ -217,7 +291,9 @@ function TimeBox({ value, max, onCommit }: { value: string; max: number; onCommi
         if (Number.isFinite(n) && draft !== "") onCommit(Math.min(max, n));
         else setDraft(value);
       }}
-      onKeyDown={(e) => e.key === "Enter" && (e.target as HTMLInputElement).blur()}
+      onKeyDown={(e) =>
+        e.key === "Enter" && (e.target as HTMLInputElement).blur()
+      }
       className="w-9 rounded-md border border-gray-300 bg-white py-1 text-center text-sm tabular-nums text-gray-800
         focus:border-accent-400 focus:outline-none dark:border-gray-600 dark:bg-gray-700 dark:text-gray-100"
     />

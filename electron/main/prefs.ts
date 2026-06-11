@@ -1,11 +1,6 @@
-import { app } from "electron";
-import {
-  existsSync,
-  mkdirSync,
-  readFileSync,
-  writeFileSync,
-} from "node:fs";
+import { existsSync, mkdirSync, readFileSync, writeFileSync } from "node:fs";
 import { dirname, join } from "node:path";
+import { app } from "electron";
 
 let cache: Record<string, unknown> | null = null;
 let filePath = "";

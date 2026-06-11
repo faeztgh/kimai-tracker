@@ -1,7 +1,16 @@
 import { app, Menu, nativeImage, Tray } from "electron";
-import { resourcePath } from "./resources";
+import trayIco from "../../resources/tray.ico?asset";
+import trayPng from "../../resources/tray.png?asset";
+import trayRunningPng from "../../resources/tray-running.png?asset";
+import { mainT } from "./i18n";
 import { appState } from "./state";
-import { getMainWindow, showMain, toggleFloating, toggleMain, toggleTimerHotkey } from "./windows";
+import {
+  getMainWindow,
+  showMain,
+  toggleFloating,
+  toggleMain,
+  toggleTimerHotkey,
+} from "./windows";
 
 let tray: Tray | null = null;
 let running = false;
@@ -9,15 +18,15 @@ let statusLabel = "";
 let orgLabel = "";
 
 function trayImage(isRunning = false) {
-  const name = isRunning
-    ? "tray-running.png"
+  const path = isRunning
+    ? trayRunningPng
     : process.platform === "win32"
-      ? "tray.ico"
-      : "tray.png";
-  let img = nativeImage.createFromPath(resourcePath(name));
-  if (process.platform === "darwin") {
+      ? trayIco
+      : trayPng;
+  let img = nativeImage.createFromPath(path);
+  if (img.isEmpty()) img = nativeImage.createFromPath(trayPng);
+  if (process.platform === "darwin")
     img = img.resize({ width: 18, height: 18 });
-  }
   return img;
 }
 
@@ -33,16 +42,20 @@ function appName(): string {
 }
 
 function buildMenu(): Menu {
+  const tr = mainT();
   return Menu.buildFromTemplate([
-    { label: `Show ${appName()}`, click: () => showMain() },
-    { label: "Toggle Floating Window", click: () => toggleFloating() },
+    { label: `${tr.show} ${appName()}`, click: () => showMain() },
+    { label: tr.toggleFloating, click: () => toggleFloating() },
     { type: "separator" },
     running
-      ? { label: `Stop timer · ${statusLabel}`, click: () => stopFromTray() }
-      : { label: "Start timer", click: () => toggleTimerHotkey() },
+      ? {
+          label: `${tr.stopTimer} · ${statusLabel}`,
+          click: () => stopFromTray(),
+        }
+      : { label: tr.startTimer, click: () => toggleTimerHotkey() },
     { type: "separator" },
     {
-      label: "Settings",
+      label: tr.settings,
       click: () => {
         showMain();
         getMainWindow()?.webContents.send("goto-settings");
@@ -50,7 +63,7 @@ function buildMenu(): Menu {
     },
     { type: "separator" },
     {
-      label: "Quit",
+      label: tr.quit,
       click: () => {
         appState.isQuitting = true;
         app.quit();
@@ -66,6 +79,12 @@ export function createTray(): Tray {
   tray.on("click", () => toggleMain());
   tray.on("double-click", () => showMain());
   return tray;
+}
+
+export function refreshTrayMenu(): void {
+  if (!tray) return;
+  tray.setContextMenu(buildMenu());
+  tray.setToolTip(running ? `${appName()} — ${statusLabel}` : appName());
 }
 
 export function updateTrayStatus(status: {

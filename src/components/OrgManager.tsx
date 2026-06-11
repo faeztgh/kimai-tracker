@@ -1,13 +1,15 @@
 import { useState } from "react";
-import { Button } from "./ui";
-import { OrgForm } from "./OrgForm";
-import { useConfirm } from "./ConfirmDialog";
-import { useSettings } from "../store/settings";
+import { useTranslation } from "react-i18next";
 import type { PublicOrg } from "../api/types";
+import { useSettings } from "../store/settings";
+import { useConfirm } from "./ConfirmDialog";
+import { OrgForm } from "./OrgForm";
+import { Button } from "./ui";
 
 type Mode = { kind: "list" } | { kind: "add" } | { kind: "edit"; id: string };
 
 export function OrgManager() {
+  const { t } = useTranslation();
   const organisations = useSettings((s) => s.organisations);
   const activeOrgId = useSettings((s) => s.activeOrgId);
   const addOrg = useSettings((s) => s.addOrg);
@@ -19,9 +21,9 @@ export function OrgManager() {
 
   async function remove(org: PublicOrg) {
     const ok = await confirm({
-      title: `Remove ${org.alias}?`,
-      message: "This deletes the saved server, token, and settings for this organisation.",
-      confirmLabel: "Remove",
+      title: `${t("org.confirmRemove")} ${org.alias}`,
+      message: t("org.confirmRemoveMsg"),
+      confirmLabel: t("org.removeOrg"),
       danger: true,
     });
     if (ok) await removeOrg(org.id);
@@ -44,37 +46,62 @@ export function OrgManager() {
                 <p className="truncate text-sm font-medium text-gray-800 dark:text-gray-100">
                   {org.alias}
                 </p>
-                <p className="truncate text-xs text-gray-400 dark:text-gray-500">{org.baseUrl}</p>
+                <p className="truncate text-xs text-gray-400 dark:text-gray-500">
+                  {org.baseUrl}
+                </p>
               </div>
               {isActive ? (
                 <span className="shrink-0 rounded-full bg-accent-100 px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wide text-accent-700 dark:bg-accent-900/50 dark:text-accent-300">
-                  Active
+                  {t("org.active")}
                 </span>
               ) : (
-                <Button variant="secondary" onClick={() => void switchOrg(org.id)}>
-                  Switch
+                <Button
+                  variant="secondary"
+                  onClick={() => void switchOrg(org.id)}
+                >
+                  {t("org.switchOrg")}
                 </Button>
               )}
               <button
                 type="button"
-                title="Edit organisation"
+                title={t("org.editOrgTooltip")}
                 onClick={() =>
-                  setMode(isEditing ? { kind: "list" } : { kind: "edit", id: org.id })
+                  setMode(
+                    isEditing ? { kind: "list" } : { kind: "edit", id: org.id },
+                  )
                 }
                 className="rounded-lg p-1.5 text-gray-400 transition hover:bg-gray-100 hover:text-gray-700 dark:hover:bg-gray-700 dark:hover:text-gray-200"
               >
-                <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                <svg
+                  width="15"
+                  height="15"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth="2"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                >
                   <path d="M12 20h9" />
                   <path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4 12.5-12.5z" />
                 </svg>
               </button>
               <button
                 type="button"
-                title="Remove organisation"
+                title={t("org.removeOrgTooltip")}
                 onClick={() => void remove(org)}
                 className="rounded-lg p-1.5 text-gray-400 transition hover:bg-red-50 hover:text-red-600 dark:hover:bg-red-950/40 dark:hover:text-red-400"
               >
-                <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                <svg
+                  width="15"
+                  height="15"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth="2"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                >
                   <path d="M3 6h18M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2m3 0v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6" />
                 </svg>
               </button>
@@ -112,7 +139,7 @@ export function OrgManager() {
         {mode.kind === "add" ? (
           <OrgForm
             mode="create"
-            submitLabel="Add organisation"
+            submitLabel={t("org.addOrg")}
             onSubmit={async (value) => {
               await addOrg({
                 alias: value.alias,
@@ -126,8 +153,12 @@ export function OrgManager() {
             onCancel={() => setMode({ kind: "list" })}
           />
         ) : (
-          <Button variant="secondary" className="w-full" onClick={() => setMode({ kind: "add" })}>
-            + Add organisation
+          <Button
+            variant="secondary"
+            className="w-full"
+            onClick={() => setMode({ kind: "add" })}
+          >
+            + {t("org.addOrg")}
           </Button>
         )}
       </div>

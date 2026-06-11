@@ -1,8 +1,8 @@
 import { app, globalShortcut, Menu, session } from "electron";
 import { loadOrganisations } from "./connection";
+import { startIdleWatch } from "./idle";
 import { registerIpc } from "./ipc";
 import { appState } from "./state";
-import { startIdleWatch } from "./idle";
 import { createTray } from "./tray";
 import { initAutoUpdater } from "./updater";
 import {
@@ -13,7 +13,9 @@ import {
   toggleTimerHotkey,
 } from "./windows";
 
-app.setAppUserModelId("pro.faez.kimai-tracker");
+// Only in production — the dev electron.exe must not share the production
+// taskbar identity, or Windows caches the Electron icon for this AUMID.
+if (app.isPackaged) app.setAppUserModelId("pro.faez.kimaitracker");
 
 if (!app.requestSingleInstanceLock()) {
   app.quit();
@@ -51,7 +53,9 @@ app.on("will-quit", () => {
 function registerGlobalShortcut(): void {
   try {
     globalShortcut.register("CommandOrControl+Shift+K", () => toggleMain());
-    globalShortcut.register("CommandOrControl+Shift+S", () => toggleTimerHotkey());
+    globalShortcut.register("CommandOrControl+Shift+S", () =>
+      toggleTimerHotkey(),
+    );
   } catch (err) {
     console.warn("[shortcut] registration failed:", err);
   }

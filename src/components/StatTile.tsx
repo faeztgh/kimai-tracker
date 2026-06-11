@@ -4,12 +4,14 @@ export function StatTile({
   label,
   value,
   sub,
+  sub2,
   primary,
   delta,
 }: {
   label: string;
   value: string;
   sub?: string;
+  sub2?: string;
   primary?: boolean;
   delta?: number | null;
 }) {
@@ -32,10 +34,18 @@ export function StatTile({
           className="mt-0.5 block font-mono text-xs font-medium tabular-nums text-accent-600 dark:text-accent-400"
         />
       )}
+      {sub2 && (
+        <AnimatedNumber
+          value={sub2}
+          className="mt-0.5 block font-mono text-[10px] font-medium tabular-nums text-gray-400 dark:text-gray-500"
+        />
+      )}
       {delta != null && (
         <p
           className={`text-[10px] font-medium tabular-nums ${
-            delta >= 0 ? "text-emerald-600 dark:text-emerald-400" : "text-red-500 dark:text-red-400"
+            delta >= 0
+              ? "text-emerald-600 dark:text-emerald-400"
+              : "text-red-500 dark:text-red-400"
           }`}
         >
           {delta >= 0 ? "▲" : "▼"} {Math.abs(Math.round(delta))}% vs prev

@@ -1,9 +1,4 @@
-import type {
-  Connection,
-  NewOrgInput,
-  OrgList,
-  OrgPatch,
-} from "./api/types";
+import type { Connection, NewOrgInput, OrgList, OrgPatch } from "./api/types";
 
 export interface KimaiRequestInit {
   path: string;
@@ -69,6 +64,7 @@ export interface KimaiApi {
     hideFloating(): void;
     showMain(): void;
     syncData(): void;
+    pinFloating(): void;
   };
 
   tray: {
@@ -84,6 +80,8 @@ export interface KimaiApi {
 
   openExternal(url: string): Promise<void>;
 
+  setLanguage(lang: string): Promise<void>;
+
   on(
     channel:
       | "goto-settings"
@@ -91,7 +89,8 @@ export interface KimaiApi {
       | "data:changed"
       | "org:changed"
       | "hotkey:toggle-timer"
-      | "idle:detected",
+      | "idle:detected"
+      | "language:changed",
     listener: (...args: unknown[]) => void,
   ): () => void;
 }

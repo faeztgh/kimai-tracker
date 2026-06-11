@@ -41,7 +41,9 @@ export function Inline({
     <div className="flex items-center justify-between gap-3 px-3 py-2.5">
       <div className="min-w-0">
         <p className="text-sm text-gray-700 dark:text-gray-200">{label}</p>
-        {hint && <p className="text-xs text-gray-400 dark:text-gray-500">{hint}</p>}
+        {hint && (
+          <p className="text-xs text-gray-400 dark:text-gray-500">{hint}</p>
+        )}
       </div>
       <div className="shrink-0">{children}</div>
     </div>
@@ -60,7 +62,9 @@ export function Stacked({
   return (
     <div className="px-3 py-2.5">
       <p className="text-sm text-gray-700 dark:text-gray-200">{label}</p>
-      {hint && <p className="mb-2 text-xs text-gray-400 dark:text-gray-500">{hint}</p>}
+      {hint && (
+        <p className="mb-2 text-xs text-gray-400 dark:text-gray-500">{hint}</p>
+      )}
       <div className={hint ? "" : "mt-2"}>{children}</div>
     </div>
   );
@@ -127,7 +131,9 @@ export function NumberInput({
         }}
         className={numberFieldClass}
       />
-      {unit && <span className="text-xs text-gray-400 dark:text-gray-500">{unit}</span>}
+      {unit && (
+        <span className="text-xs text-gray-400 dark:text-gray-500">{unit}</span>
+      )}
     </div>
   );
 }
@@ -149,7 +155,9 @@ export function TextField({
 }) {
   return (
     <label className="block">
-      <span className="text-xs font-medium text-gray-500 dark:text-gray-400">{label}</span>
+      <span className="text-xs font-medium text-gray-500 dark:text-gray-400">
+        {label}
+      </span>
       <input
         className={`mt-1 ${inputClass}`}
         type={type}

@@ -1,6 +1,6 @@
-import { describe, it, expect, vi, beforeEach } from "vitest";
-import { useSettings, activeOrg, activeAlias } from "../../store/settings";
+import { beforeEach, describe, expect, it, type vi } from "vitest";
 import type { OrgList, PublicOrg } from "../../api/types";
+import { activeAlias, activeOrg, useSettings } from "../../store/settings";
 
 const mockList = window.api.org.list as ReturnType<typeof vi.fn>;
 const mockPrefsGet = window.api.prefs.get as ReturnType<typeof vi.fn>;
@@ -37,7 +37,10 @@ function makeOrg(overrides: Partial<PublicOrg> = {}): PublicOrg {
   };
 }
 
-function makeOrgList(orgs: PublicOrg[], activeId: string | null = null): OrgList {
+function makeOrgList(
+  orgs: PublicOrg[],
+  activeId: string | null = null,
+): OrgList {
   return { organisations: orgs, activeOrgId: activeId };
 }
 
@@ -91,7 +94,9 @@ describe("load()", () => {
   });
 
   it("applies org settings to the store fields", async () => {
-    const org = makeOrg({ settings: { ...SETTINGS, pollSeconds: 30, currency: "USD" } });
+    const org = makeOrg({
+      settings: { ...SETTINGS, pollSeconds: 30, currency: "USD" },
+    });
     mockList.mockResolvedValueOnce(makeOrgList([org], "org-1"));
     mockPrefsGet.mockResolvedValueOnce("system");
 

@@ -1,5 +1,5 @@
-import { describe, it, expect, vi, beforeEach, afterEach } from "vitest";
-import { render, screen, act } from "@testing-library/react";
+import { act, render, screen } from "@testing-library/react";
+import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { Elapsed } from "../../components/Elapsed";
 import { useSettings } from "../../store/settings";
 
@@ -38,7 +38,9 @@ describe("Elapsed", () => {
 
   it("forwards the className prop to the inner span", () => {
     const begin = new Date(Date.now()).toISOString();
-    const { container } = render(<Elapsed begin={begin} className="elapsed-text" />);
+    const { container } = render(
+      <Elapsed begin={begin} className="elapsed-text" />,
+    );
     const span = container.querySelector("span.elapsed-text");
     expect(span).not.toBeNull();
   });

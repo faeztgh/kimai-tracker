@@ -1,10 +1,12 @@
-import { TrackerBar } from "../components/TrackerBar";
+import { useTranslation } from "react-i18next";
 import { EntryList } from "../components/EntryList";
+import { TrackerBar } from "../components/TrackerBar";
 import { useTotals } from "../hooks/useTotals";
-import { useSettings } from "../store/settings";
 import { formatDurationShort } from "../lib/format";
+import { useSettings } from "../store/settings";
 
 export function TrackerView() {
+  const { t } = useTranslation();
   const totals = useTotals();
   const showSummary = useSettings((s) => s.showSummary);
 
@@ -17,11 +19,22 @@ export function TrackerView() {
       </div>
 
       {showSummary && (
-        <footer className="grid grid-cols-3 divide-x divide-gray-200 border-t border-gray-200 bg-white
-          dark:divide-gray-800 dark:border-gray-800 dark:bg-gray-800">
-          <Stat label="Today" value={formatDurationShort(totals.today)} />
-          <Stat label="This week" value={formatDurationShort(totals.week)} />
-          <Stat label="This month" value={formatDurationShort(totals.month)} />
+        <footer
+          className="grid grid-cols-3 divide-x divide-gray-200 border-t border-gray-200 bg-white
+          dark:divide-gray-800 dark:border-gray-800 dark:bg-gray-800"
+        >
+          <Stat
+            label={t("dashboard.today")}
+            value={formatDurationShort(totals.today)}
+          />
+          <Stat
+            label={t("dashboard.thisWeek")}
+            value={formatDurationShort(totals.week)}
+          />
+          <Stat
+            label={t("dashboard.thisMonth")}
+            value={formatDurationShort(totals.month)}
+          />
         </footer>
       )}
     </div>

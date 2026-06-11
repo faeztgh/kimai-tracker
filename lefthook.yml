@@ -1,0 +1,12 @@
+# https://lefthook.dev/configuration/
+pre-commit:
+  jobs:
+    - name: biome
+      glob: "*.{js,jsx,ts,tsx,json,jsonc,css}"
+      run: pnpm exec biome check --write --no-errors-on-unmatched {staged_files}
+      stage_fixed: true
+
+pre-push:
+  jobs:
+    - name: typecheck
+      run: pnpm typecheck

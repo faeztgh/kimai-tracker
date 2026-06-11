@@ -1,17 +1,32 @@
-import { describe, it, expect } from "vitest";
-import { render, screen, fireEvent, waitFor } from "@testing-library/react";
+import { fireEvent, render, screen, waitFor } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { useState } from "react";
-import { ConfirmProvider, useConfirm, type ConfirmOptions } from "../../components/ConfirmDialog";
+import { describe, expect, it } from "vitest";
+import {
+  type ConfirmOptions,
+  ConfirmProvider,
+  useConfirm,
+} from "../../components/ConfirmDialog";
 
 // Helper component that opens the dialog on button click and records the result
-function DialogTrigger({ options, label = "Open" }: { options: ConfirmOptions; label?: string }) {
+function DialogTrigger({
+  options,
+  label = "Open",
+}: {
+  options: ConfirmOptions;
+  label?: string;
+}) {
   const confirm = useConfirm();
   const [result, setResult] = useState<boolean | null>(null);
 
   return (
     <div>
-      <button onClick={() => void confirm(options).then(setResult)}>{label}</button>
+      <button
+        type="button"
+        onClick={() => void confirm(options).then(setResult)}
+      >
+        {label}
+      </button>
       {result !== null && <div data-testid="result">{String(result)}</div>}
     </div>
   );
@@ -42,18 +57,26 @@ describe("ConfirmDialog", () => {
     renderDialog({ title: "Proceed?" });
     await userEvent.click(screen.getByText("Open"));
     await userEvent.click(screen.getByText("Confirm"));
-    await waitFor(() => expect(screen.getByTestId("result").textContent).toBe("true"));
+    await waitFor(() =>
+      expect(screen.getByTestId("result").textContent).toBe("true"),
+    );
   });
 
   it("resolves with false when Cancel button is clicked", async () => {
     renderDialog({ title: "Proceed?" });
     await userEvent.click(screen.getByText("Open"));
     await userEvent.click(screen.getByText("Cancel"));
-    await waitFor(() => expect(screen.getByTestId("result").textContent).toBe("false"));
+    await waitFor(() =>
+      expect(screen.getByTestId("result").textContent).toBe("false"),
+    );
   });
 
   it("uses custom confirmLabel and cancelLabel props", async () => {
-    renderDialog({ title: "OK?", confirmLabel: "Yes, delete", cancelLabel: "No thanks" });
+    renderDialog({
+      title: "OK?",
+      confirmLabel: "Yes, delete",
+      cancelLabel: "No thanks",
+    });
     await userEvent.click(screen.getByText("Open"));
     expect(screen.getByText("Yes, delete")).toBeInTheDocument();
     expect(screen.getByText("No thanks")).toBeInTheDocument();
@@ -70,24 +93,26 @@ describe("ConfirmDialog", () => {
     renderDialog({ title: "Proceed?" });
     await userEvent.click(screen.getByText("Open"));
     fireEvent.keyDown(document, { key: "Escape" });
-    await waitFor(() => expect(screen.getByTestId("result").textContent).toBe("false"));
+    await waitFor(() =>
+      expect(screen.getByTestId("result").textContent).toBe("false"),
+    );
   });
 
   it("resolves with true on Enter key", async () => {
     renderDialog({ title: "Proceed?" });
     await userEvent.click(screen.getByText("Open"));
     fireEvent.keyDown(document, { key: "Enter" });
-    await waitFor(() => expect(screen.getByTestId("result").textContent).toBe("true"));
+    await waitFor(() =>
+      expect(screen.getByTestId("result").textContent).toBe("true"),
+    );
   });
 
   it("throws when useConfirm is used outside a ConfirmProvider", () => {
     // Suppress React error boundary noise in test output
     const spy = vi.spyOn(console, "error").mockImplementation(() => {});
-    expect(() =>
-      render(
-        <DialogTrigger options={{ title: "?" }} />,
-      ),
-    ).toThrow("useConfirm must be used within a ConfirmProvider");
+    expect(() => render(<DialogTrigger options={{ title: "?" }} />)).toThrow(
+      "useConfirm must be used within a ConfirmProvider",
+    );
     spy.mockRestore();
   });
 });

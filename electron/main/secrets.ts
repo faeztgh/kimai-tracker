@@ -1,4 +1,3 @@
-import { app, safeStorage } from "electron";
 import {
   existsSync,
   mkdirSync,
@@ -7,6 +6,7 @@ import {
   writeFileSync,
 } from "node:fs";
 import { dirname, join } from "node:path";
+import { app, safeStorage } from "electron";
 
 interface Entry {
   enc: boolean;
@@ -41,7 +41,7 @@ function read(): Store {
   if (!existsSync(path)) return emptyStore();
   try {
     const parsed = JSON.parse(readFileSync(path, "utf8")) as Store;
-    if (parsed && parsed.tokens && typeof parsed.tokens === "object") {
+    if (parsed?.tokens && typeof parsed.tokens === "object") {
       return { v: 2, tokens: parsed.tokens };
     }
   } catch (err) {

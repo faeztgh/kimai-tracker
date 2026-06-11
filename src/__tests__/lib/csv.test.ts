@@ -1,12 +1,15 @@
-import { describe, it, expect, vi } from "vitest";
-import { toCsv, downloadTextFile } from "../../lib/csv";
+import { describe, expect, it, vi } from "vitest";
+import { downloadTextFile, toCsv } from "../../lib/csv";
 
 describe("toCsv", () => {
   it("joins headers and rows with commas and CRLF", () => {
-    const result = toCsv(["Date", "Project"], [
-      ["2024-01-01", "Dev"],
-      ["2024-01-02", "Design"],
-    ]);
+    const result = toCsv(
+      ["Date", "Project"],
+      [
+        ["2024-01-01", "Dev"],
+        ["2024-01-02", "Design"],
+      ],
+    );
     const lines = result.split("\r\n");
     expect(lines[0]).toBe("Date,Project");
     expect(lines[1]).toBe("2024-01-01,Dev");
@@ -18,7 +21,7 @@ describe("toCsv", () => {
     expect(result).toContain('"Smith, John"');
   });
 
-  it('escapes values that contain double-quotes by doubling them', () => {
+  it("escapes values that contain double-quotes by doubling them", () => {
     const result = toCsv(["Note"], [['He said "hello"']]);
     expect(result).toContain('"He said ""hello"""');
   });
@@ -49,8 +52,12 @@ describe("downloadTextFile", () => {
       value: { createObjectURL, revokeObjectURL },
     });
 
-    const appendChildSpy = vi.spyOn(document.body, "appendChild").mockImplementation((el) => el);
-    const removeChildSpy = vi.spyOn(document.body, "removeChild").mockImplementation((el) => el);
+    const appendChildSpy = vi
+      .spyOn(document.body, "appendChild")
+      .mockImplementation((el) => el);
+    const removeChildSpy = vi
+      .spyOn(document.body, "removeChild")
+      .mockImplementation((el) => el);
     const clickSpy = vi.fn();
 
     const origCreate = document.createElement.bind(document);

@@ -8,10 +8,18 @@ directories:
 
 # Only the built output + manifest ship in the app; src/ and electron/ source
 # are excluded automatically by this whitelist.
+# resources/** must ship inside the app AND be unpacked from the asar:
+# electron-vite compiles `?asset` imports from resources/ to
+# join(__dirname, "../../resources/..."), which resolves to app.asar/resources/...
+# at runtime — asarUnpack redirects that to a real file on disk.
 files:
   - out/**
+  - resources/**
   - package.json
   - "!**/*.{map,md,ts}"
+
+asarUnpack:
+  - resources/**
 
 # Runtime icons (tray + window) — copied to <app>/resources/resources at runtime
 # (see electron/main/resources.ts).
@@ -22,6 +30,27 @@ extraResources:
 
 asar: true
 compression: maximum
+
+electronLanguages:
+  - en-US
+  - en-GB
+  - fa
+  - de
+  - es
+  - ar
+  - ru
+  - fr
+  - it
+  - pt-BR
+  - pt-PT
+  - nl
+  - pl
+  - tr
+  - ja
+  - zh-CN
+  - uk
+  - cs
+  - ko
 
 win:
   target:

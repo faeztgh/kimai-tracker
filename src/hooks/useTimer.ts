@@ -2,17 +2,17 @@ import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import {
   createEntry,
   deleteTimesheet,
+  type EntryFields,
   getActiveTimesheets,
   getRecentTimesheets,
   restartTimer,
   startTimer,
   stopTimer,
-  updateTimesheet,
-  type EntryFields,
   type UpdateEntryInput,
+  updateTimesheet,
 } from "../api/kimai";
-import { useSettings } from "../store/settings";
 import type { KimaiTimesheet } from "../api/types";
+import { useSettings } from "../store/settings";
 
 function fieldsOf(t: KimaiTimesheet): EntryFields {
   return {
@@ -65,11 +65,23 @@ export function useTimerMutations() {
   });
   const stop = useMutation({
     mutationFn: (id: number) => stopTimer(id),
-    onSuccess: invalidate,
+    onSuccess: () => {
+      // Clear the persisted press-time on any stop path (main, floating, tray).
+      void window.api.prefs.set("timerStartedAt", null);
+      invalidate();
+    },
   });
   const restart = useMutation({
     mutationFn: (t: KimaiTimesheet) => restartTimer(t.id, t),
-    onSuccess: invalidate,
+    onSuccess: (ts) => {
+      // Record the resume moment so elapsed counts from ~0:00 in both windows,
+      // matching the behaviour of a freshly started timer.
+      void window.api.prefs.set("timerStartedAt", {
+        id: ts.id,
+        ms: Date.now(),
+      });
+      invalidate();
+    },
   });
   const manual = useMutation({
     mutationFn: (input: EntryFields & { begin: Date; end: Date }) =>
@@ -88,7 +100,11 @@ export function useTimerMutations() {
 
   const duplicate = useMutation({
     mutationFn: (t: KimaiTimesheet) =>
-      createEntry({ ...fieldsOf(t), begin: new Date(t.begin), end: new Date(t.end!) }),
+      createEntry({
+        ...fieldsOf(t),
+        begin: new Date(t.begin),
+        end: new Date(t.end!),
+      }),
     onSuccess: invalidate,
   });
 

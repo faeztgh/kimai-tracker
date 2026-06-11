@@ -1,4 +1,4 @@
-import { contextBridge, ipcRenderer, type IpcRendererEvent } from "electron";
+import { contextBridge, type IpcRendererEvent, ipcRenderer } from "electron";
 
 type AuthMode = "bearer" | "legacy";
 
@@ -42,7 +42,8 @@ type IncomingChannel =
   | "data:changed"
   | "org:changed"
   | "hotkey:toggle-timer"
-  | "idle:detected";
+  | "idle:detected"
+  | "language:changed";
 
 const LABEL_FLAG = "--window-label=";
 const labelArg = process.argv.find((a) => a.startsWith(LABEL_FLAG));
@@ -54,7 +55,10 @@ const api = {
   kimai: {
     request: (req: KimaiRequestInit): Promise<KimaiResponse> =>
       ipcRenderer.invoke("kimai:request", req),
-    requestWith: (conn: Connection, req: KimaiRequestInit): Promise<KimaiResponse> =>
+    requestWith: (
+      conn: Connection,
+      req: KimaiRequestInit,
+    ): Promise<KimaiResponse> =>
       ipcRenderer.invoke("kimai:requestWith", conn, req),
   },
 
@@ -94,6 +98,7 @@ const api = {
     hideFloating: (): void => ipcRenderer.send("windows:hideFloating"),
     showMain: (): void => ipcRenderer.send("windows:showMain"),
     syncData: (): void => ipcRenderer.send("windows:syncData"),
+    pinFloating: (): void => ipcRenderer.send("windows:pinFloating"),
   },
 
   tray: {
@@ -111,6 +116,9 @@ const api = {
   openExternal: (url: string): Promise<void> =>
     ipcRenderer.invoke("shell:openExternal", url),
 
+  setLanguage: (lang: string): Promise<void> =>
+    ipcRenderer.invoke("i18n:setLanguage", lang),
+
   on: (
     channel: IncomingChannel,
     listener: (...args: unknown[]) => void,
@@ -122,6 +130,7 @@ const api = {
       "org:changed",
       "hotkey:toggle-timer",
       "idle:detected",
+      "language:changed",
     ];
     if (!allowed.includes(channel)) return () => {};
     const handler = (_e: IpcRendererEvent, ...args: unknown[]) =>

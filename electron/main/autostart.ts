@@ -1,7 +1,7 @@
-import { app } from "electron";
 import { existsSync, mkdirSync, rmSync, writeFileSync } from "node:fs";
 import { homedir } from "node:os";
 import { join } from "node:path";
+import { app } from "electron";
 
 const LINUX_DIR = join(homedir(), ".config", "autostart");
 const LINUX_FILE = join(LINUX_DIR, "kimai-tracker.desktop");

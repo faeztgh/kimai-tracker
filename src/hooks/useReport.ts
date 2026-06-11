@@ -1,8 +1,13 @@
 import { useQuery } from "@tanstack/react-query";
 import { getTimesheetsInRange } from "../api/kimai";
-import { useSettings } from "../store/settings";
-import { dayKey, dayKeysBetween, durationOf, toKimaiLocal } from "../lib/format";
 import type { KimaiTimesheet } from "../api/types";
+import {
+  dayKey,
+  dayKeysBetween,
+  durationOf,
+  toKimaiLocal,
+} from "../lib/format";
+import { useSettings } from "../store/settings";
 
 export interface ReportResult {
   isLoading: boolean;
@@ -18,7 +23,18 @@ export interface ReportResult {
   activeDays: number;
 }
 
-export function useReport(begin: Date, end: Date): ReportResult {
+export interface ReportFilters {
+  projectId?: number;
+  activityId?: number;
+  tag?: string;
+  billableOnly?: boolean;
+}
+
+export function useReport(
+  begin: Date,
+  end: Date,
+  filters?: ReportFilters,
+): ReportResult {
   const configured = useSettings((s) => s.configured);
   const orgId = useSettings((s) => s.activeOrgId);
   const beginIso = toKimaiLocal(begin);
@@ -31,7 +47,16 @@ export function useReport(begin: Date, end: Date): ReportResult {
     staleTime: 30_000,
   });
 
-  const entries = query.data ?? [];
+  const allEntries = query.data ?? [];
+  const entries = allEntries.filter((t) => {
+    if (filters?.projectId !== undefined && t.project !== filters.projectId)
+      return false;
+    if (filters?.activityId !== undefined && t.activity !== filters.activityId)
+      return false;
+    if (filters?.tag && !(t.tags ?? []).includes(filters.tag)) return false;
+    if (filters?.billableOnly && !t.billable) return false;
+    return true;
+  });
   const total = entries.reduce((sum, t) => sum + durationOf(t), 0);
 
   const projMap = new Map<number, number>();
@@ -44,7 +69,8 @@ export function useReport(begin: Date, end: Date): ReportResult {
     if (t.billable) billableTotal += secs;
     projMap.set(t.project, (projMap.get(t.project) ?? 0) + secs);
     actMap.set(t.activity, (actMap.get(t.activity) ?? 0) + secs);
-    for (const tag of t.tags ?? []) tagMap.set(tag, (tagMap.get(tag) ?? 0) + secs);
+    for (const tag of t.tags ?? [])
+      tagMap.set(tag, (tagMap.get(tag) ?? 0) + secs);
     const k = dayKey(t.begin);
     dayMap.set(k, (dayMap.get(k) ?? 0) + secs);
   }

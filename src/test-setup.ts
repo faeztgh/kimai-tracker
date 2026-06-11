@@ -1,5 +1,8 @@
 import "@testing-library/jest-dom";
-import { vi, afterEach } from "vitest";
+import { afterEach, vi } from "vitest";
+// Initialise i18n (synchronous, lng:"en") so components using t() render real
+// English text in tests instead of raw translation keys.
+import "./i18n";
 
 // jsdom does not implement matchMedia
 Object.defineProperty(window, "matchMedia", {
@@ -51,12 +54,14 @@ window.api = {
     hideFloating: noop,
     showMain: noop,
     syncData: noop,
+    pinFloating: noop,
   },
   tray: {
     setStatus: noop,
   },
   notify: noop,
   openExternal: vi.fn(),
+  setLanguage: vi.fn(),
   on: noopReturn,
 };
 

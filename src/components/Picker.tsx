@@ -1,5 +1,6 @@
 import { useLayoutEffect, useMemo, useRef, useState } from "react";
 import { createPortal } from "react-dom";
+import { useTranslation } from "react-i18next";
 import { useDismiss } from "../hooks/useDismiss";
 
 export interface PickerOption {
@@ -45,6 +46,7 @@ export function Picker({
   defaultOpen = false,
   onClose,
 }: Props) {
+  const { t } = useTranslation();
   const [open, setOpen] = useState(defaultOpen);
   const [query, setQuery] = useState("");
   const [pos, setPos] = useState<Pos>({ left: 0, width: 0 });
@@ -82,7 +84,9 @@ export function Picker({
 
   const filtered = useMemo(() => {
     const q = query.trim().toLowerCase();
-    return q ? options.filter((o) => o.label.toLowerCase().includes(q)) : options;
+    return q
+      ? options.filter((o) => o.label.toLowerCase().includes(q))
+      : options;
   }, [options, query]);
 
   const grouped = useMemo(() => {
@@ -102,7 +106,7 @@ export function Picker({
         type="button"
         disabled={disabled || loading}
         onClick={() => (open ? dismiss() : setOpen(true))}
-        className={`${fit ? "inline-flex w-auto max-w-[220px]" : "flex w-full"} items-center gap-1.5 rounded-lg
+        className={`${fit ? "inline-flex w-auto max-w-55" : "flex w-full"} items-center gap-1.5 rounded-lg
           border border-gray-300 bg-white px-2.5 py-1.5 text-sm text-gray-700 transition hover:bg-gray-50
           disabled:opacity-50 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-200 dark:hover:bg-gray-600`}
       >
@@ -114,7 +118,9 @@ export function Picker({
         )}
         <span
           className={`truncate ${
-            selected ? "text-gray-800 dark:text-gray-100" : "text-gray-400 dark:text-gray-500"
+            selected
+              ? "text-gray-800 dark:text-gray-100"
+              : "text-gray-400 dark:text-gray-500"
           }`}
         >
           {loading ? "Loading…" : (selected?.label ?? placeholder)}
@@ -136,8 +142,14 @@ export function Picker({
         createPortal(
           <div
             ref={menuRef}
-            style={{ position: "fixed", left: pos.left, width: pos.width, top: pos.top, bottom: pos.bottom }}
-            className="anim-dropdown z-[70] max-h-64 overflow-auto rounded-lg border border-gray-200 bg-white py-1
+            style={{
+              position: "fixed",
+              left: pos.left,
+              width: pos.width,
+              top: pos.top,
+              bottom: pos.bottom,
+            }}
+            className="anim-dropdown z-70 max-h-64 overflow-auto rounded-lg border border-gray-200 bg-white py-1
               shadow-xl dark:border-gray-700 dark:bg-gray-800"
           >
             {searchable && (
@@ -146,7 +158,7 @@ export function Picker({
                   autoFocus
                   value={query}
                   onChange={(e) => setQuery(e.target.value)}
-                  placeholder="Search…"
+                  placeholder={t("picker.search")}
                   className="w-full rounded-md border border-gray-200 bg-white px-2 py-1 text-sm text-gray-800
                     focus:border-accent-400 focus:outline-none dark:border-gray-600 dark:bg-gray-700 dark:text-gray-100"
                 />
@@ -168,7 +180,9 @@ export function Picker({
             )}
 
             {filtered.length === 0 && (
-              <p className="px-3 py-2 text-sm text-gray-400 dark:text-gray-500">No matches</p>
+              <p className="px-3 py-2 text-sm text-gray-400 dark:text-gray-500">
+                No matches
+              </p>
             )}
 
             {grouped.map(([group, opts]) => (

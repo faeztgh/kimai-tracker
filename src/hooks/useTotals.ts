@@ -1,7 +1,4 @@
 import { useQuery } from "@tanstack/react-query";
-import { useActiveTimer, useEntries } from "./useTimer";
-import { useTick } from "./useTick";
-import { useSettings } from "../store/settings";
 import { getMonthTimesheets } from "../api/kimai";
 import {
   durationOf,
@@ -10,6 +7,9 @@ import {
   startOfMonth,
   startOfWeek,
 } from "../lib/format";
+import { useSettings } from "../store/settings";
+import { useTick } from "./useTick";
+import { useActiveTimer, useEntries } from "./useTimer";
 
 export interface Totals {
   today: number;

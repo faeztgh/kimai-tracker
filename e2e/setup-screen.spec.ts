@@ -2,7 +2,7 @@
  * Tests for the initial Setup / configuration screen shown when no
  * Kimai organisation has been configured yet.
  */
-import { test, expect, mockUnconfiguredState } from "./fixtures";
+import { expect, mockUnconfiguredState, test } from "./fixtures";
 
 test.beforeEach(async ({ electronApp, page }) => {
   await mockUnconfiguredState(electronApp, page);
@@ -10,7 +10,9 @@ test.beforeEach(async ({ electronApp, page }) => {
 
 test("setup screen is visible when app is unconfigured", async ({ page }) => {
   // The Setup screen contains an input for the Kimai server URL
-  await expect(page.getByPlaceholder(/https:\/\//i)).toBeVisible({ timeout: 5000 });
+  await expect(page.getByPlaceholder(/https:\/\//i)).toBeVisible({
+    timeout: 5000,
+  });
 });
 
 test("URL input accepts text", async ({ page }) => {
@@ -38,13 +40,17 @@ test("attempting to connect with blank fields shows an error or keeps button dis
   const urlInput = page.getByPlaceholder(/https:\/\//i);
   await urlInput.fill("");
 
-  const connectBtn = page.getByRole("button", { name: /test connection|connect|save/i });
+  const connectBtn = page.getByRole("button", {
+    name: /test connection|connect|save/i,
+  });
   // Either the button is disabled or clicking shows an error
   const isDisabled = await connectBtn.isDisabled();
   if (!isDisabled) {
     await connectBtn.click();
     // Some validation message should appear (error text or aria-invalid)
-    const invalid = await page.locator("[aria-invalid='true'], [data-error], .text-red").count();
+    const invalid = await page
+      .locator("[aria-invalid='true'], [data-error], .text-red")
+      .count();
     const errorText = await page.getByText(/required|invalid|error/i).count();
     expect(invalid + errorText).toBeGreaterThan(0);
   } else {
@@ -53,15 +59,22 @@ test("attempting to connect with blank fields shows an error or keeps button dis
   }
 });
 
-test("switching to Legacy auth mode shows a username field", async ({ page }) => {
+test("switching to Legacy auth mode shows a username field", async ({
+  page,
+}) => {
   // Look for a toggle/radio/select for auth mode
-  const legacyOption = page.getByRole("radio", { name: /legacy/i })
+  const legacyOption = page
+    .getByRole("radio", { name: /legacy/i })
     .or(page.getByRole("button", { name: /legacy/i }))
     .or(page.getByText(/legacy/i).first());
 
   if ((await legacyOption.count()) > 0) {
     await legacyOption.first().click();
-    await expect(page.getByPlaceholder(/username/i).or(page.locator('input[name="username"]'))).toBeVisible({ timeout: 3000 });
+    await expect(
+      page
+        .getByPlaceholder(/username/i)
+        .or(page.locator('input[name="username"]')),
+    ).toBeVisible({ timeout: 3000 });
   } else {
     test.skip(true, "Legacy auth toggle not found – skipping");
   }

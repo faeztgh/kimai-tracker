@@ -70,6 +70,8 @@ export interface OrgSettings {
   defaultActivity: number | null;
   reminderHours: number;
   idleThresholdMinutes: number;
+  targetCurrency: string;
+  exchangeRate: number;
 }
 
 export interface PublicOrg {

@@ -5,3 +5,7 @@ export function toggleFloating(): void {
 export function hideFloating(): void {
   window.api.windows.hideFloating();
 }
+
+export function pinFloating(): void {
+  window.api.windows.pinFloating();
+}

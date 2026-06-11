@@ -9,10 +9,13 @@ export function Setup() {
     <div className="flex h-full flex-col overflow-y-auto bg-gray-100 p-5 dark:bg-gray-900">
       <div className="mb-1 flex items-center gap-2.5">
         <Logo className="h-8 w-8" />
-        <h1 className="text-lg font-semibold text-gray-900 dark:text-gray-100">Connect to Kimai</h1>
+        <h1 className="text-lg font-semibold text-gray-900 dark:text-gray-100">
+          Connect to Kimai
+        </h1>
       </div>
       <p className="text-sm text-gray-500 dark:text-gray-400">
-        Name this organisation and enter its server and API token to get started.
+        Name this organisation and enter its server and API token to get
+        started.
       </p>
 
       <div className="mt-5">

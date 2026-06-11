@@ -1,7 +1,9 @@
 import { join } from "node:path";
 import { app, BrowserWindow, nativeImage } from "electron";
+import iconIco from "../../resources/icon.ico?asset";
+import iconPng from "../../resources/icon.png?asset";
+import overlayDotPng from "../../resources/overlay-dot.png?asset";
 import { prefs } from "./prefs";
-import { resourcePath } from "./resources";
 import { appState } from "./state";
 
 const PRELOAD = join(__dirname, "../preload/index.js");
@@ -29,9 +31,13 @@ export function toggleTimerHotkey(): void {
 export function setTimerRunningIndicator(running: boolean): void {
   if (process.platform === "win32") {
     if (!mainWindow || mainWindow.isDestroyed()) return;
-    const overlay = running
-      ? nativeImage.createFromPath(resourcePath("overlay-dot.png"))
-      : null;
+    let overlay: Electron.NativeImage | null = null;
+    if (running) {
+      const img = nativeImage.createFromPath(overlayDotPng);
+      // Pass null (not a broken zero-size image) if the asset failed to load,
+      // so setOverlayIcon clears cleanly instead of silently no-op'ing.
+      overlay = img.isEmpty() ? null : img;
+    }
     mainWindow.setOverlayIcon(overlay, running ? "Timer running" : "");
   } else if (process.platform === "darwin" && app.dock) {
     app.dock.setBadge(running ? "●" : "");
@@ -39,7 +45,9 @@ export function setTimerRunningIndicator(running: boolean): void {
 }
 
 function windowIcon() {
-  return nativeImage.createFromPath(resourcePath("icon.ico"));
+  const img = nativeImage.createFromPath(iconIco);
+  if (img.isEmpty()) return nativeImage.createFromPath(iconPng);
+  return img;
 }
 
 function loadRenderer(win: BrowserWindow): void {
@@ -158,7 +166,7 @@ export function showMain(): void {
 }
 
 export function toggleMain(): void {
-  if (mainWindow && mainWindow.isVisible() && !mainWindow.isMinimized()) {
+  if (mainWindow?.isVisible() && !mainWindow.isMinimized()) {
     mainWindow.hide();
   } else {
     showMain();
@@ -172,9 +180,22 @@ export function toggleFloating(): void {
   } else {
     win.show();
     win.focus();
+    broadcast("data:changed"); // immediate data sync on show
   }
 }
 
 export function hideFloating(): void {
   floatingWindow?.hide();
+}
+
+export function hideMain(): void {
+  mainWindow?.hide();
+}
+
+export function pinFloating(): void {
+  const win = floatingWindow ?? createFloatingWindow();
+  win.show();
+  win.focus();
+  broadcast("data:changed"); // immediate sync
+  mainWindow?.hide(); // close the main popover
 }

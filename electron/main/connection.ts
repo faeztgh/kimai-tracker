@@ -20,6 +20,8 @@ export interface OrgSettings {
   defaultActivity: number | null;
   reminderHours: number;
   idleThresholdMinutes: number;
+  targetCurrency: string;
+  exchangeRate: number;
 }
 
 export interface Organisation {
@@ -75,6 +77,8 @@ export const DEFAULT_SETTINGS: OrgSettings = {
   defaultActivity: null,
   reminderHours: 8,
   idleThresholdMinutes: 10,
+  targetCurrency: "",
+  exchangeRate: 0,
 };
 
 let organisations: Organisation[] = [];
@@ -123,18 +127,33 @@ function migrateLegacy(): void {
   const settings = withDefaults({
     pollSeconds: prefs.get<number>("pollSeconds", DEFAULT_SETTINGS.pollSeconds),
     accent: prefs.get<string>("accent", DEFAULT_SETTINGS.accent),
-    showSummary: prefs.get<boolean>("showSummary", DEFAULT_SETTINGS.showSummary),
+    showSummary: prefs.get<boolean>(
+      "showSummary",
+      DEFAULT_SETTINGS.showSummary,
+    ),
     weekStart: prefs.get<number>("weekStart", DEFAULT_SETTINGS.weekStart),
     showTags: prefs.get<boolean>("showTags", DEFAULT_SETTINGS.showTags),
-    showBillable: prefs.get<boolean>("showBillable", DEFAULT_SETTINGS.showBillable),
-    notifyTimer: prefs.get<boolean>("notifyTimer", DEFAULT_SETTINGS.notifyTimer),
-    animateDigits: prefs.get<boolean>("animateDigits", DEFAULT_SETTINGS.animateDigits),
+    showBillable: prefs.get<boolean>(
+      "showBillable",
+      DEFAULT_SETTINGS.showBillable,
+    ),
+    notifyTimer: prefs.get<boolean>(
+      "notifyTimer",
+      DEFAULT_SETTINGS.notifyTimer,
+    ),
+    animateDigits: prefs.get<boolean>(
+      "animateDigits",
+      DEFAULT_SETTINGS.animateDigits,
+    ),
     hourlyRate: prefs.get<number>("hourlyRate", DEFAULT_SETTINGS.hourlyRate),
     currency: prefs.get<string>("currency", DEFAULT_SETTINGS.currency),
     showIncome: prefs.get<boolean>("showIncome", DEFAULT_SETTINGS.showIncome),
     defaultProject: prefs.get<number | null>("defaultProject", null),
     defaultActivity: prefs.get<number | null>("defaultActivity", null),
-    reminderHours: prefs.get<number>("reminderHours", DEFAULT_SETTINGS.reminderHours),
+    reminderHours: prefs.get<number>(
+      "reminderHours",
+      DEFAULT_SETTINGS.reminderHours,
+    ),
     idleThresholdMinutes: prefs.get<number>(
       "idleThresholdMinutes",
       DEFAULT_SETTINGS.idleThresholdMinutes,
@@ -153,10 +172,24 @@ function migrateLegacy(): void {
   secrets.setToken(id, token);
   secrets.deleteLegacyToken();
   for (const key of [
-    "baseUrl", "authMode", "username", "pollSeconds", "accent", "showSummary",
-    "weekStart", "showTags", "showBillable", "notifyTimer", "animateDigits",
-    "hourlyRate", "currency", "showIncome", "defaultProject", "defaultActivity",
-    "reminderHours", "idleThresholdMinutes",
+    "baseUrl",
+    "authMode",
+    "username",
+    "pollSeconds",
+    "accent",
+    "showSummary",
+    "weekStart",
+    "showTags",
+    "showBillable",
+    "notifyTimer",
+    "animateDigits",
+    "hourlyRate",
+    "currency",
+    "showIncome",
+    "defaultProject",
+    "defaultActivity",
+    "reminderHours",
+    "idleThresholdMinutes",
   ]) {
     prefs.delete(key);
   }
@@ -224,12 +257,13 @@ export function updateOrganisation(id: string, patch: OrgPatch): OrgList {
   const org = organisations.find((o) => o.id === id);
   if (!org) return listOrganisations();
   if (patch.alias !== undefined) org.alias = patch.alias.trim() || org.alias;
-  if (patch.baseUrl !== undefined) org.baseUrl = normalizeBaseUrl(patch.baseUrl);
+  if (patch.baseUrl !== undefined)
+    org.baseUrl = normalizeBaseUrl(patch.baseUrl);
   if (patch.authMode !== undefined) {
     org.authMode = patch.authMode === "legacy" ? "legacy" : "bearer";
   }
   if (patch.username !== undefined) org.username = patch.username.trim();
-  if (patch.token !== undefined && patch.token.trim()) {
+  if (patch.token?.trim()) {
     secrets.setToken(id, patch.token.trim());
   }
   persist();

@@ -1,7 +1,18 @@
 import { create } from "zustand";
-import type { NewOrgInput, OrgPatch, OrgSettings, PublicOrg } from "../api/types";
-import { setAccent, setTheme, type AccentName, type ThemeMode } from "../lib/theme";
-import { setWeekStartDay } from "../lib/format";
+import type {
+  NewOrgInput,
+  OrgPatch,
+  OrgSettings,
+  PublicOrg,
+} from "../api/types";
+import i18n, { applyDirection } from "../i18n";
+import { setFormatLang, setWeekStartDay } from "../lib/format";
+import {
+  type AccentName,
+  setAccent,
+  setTheme,
+  type ThemeMode,
+} from "../lib/theme";
 
 const DEFAULTS: OrgSettings = {
   pollSeconds: 12,
@@ -19,6 +30,8 @@ const DEFAULTS: OrgSettings = {
   defaultActivity: null,
   reminderHours: 8,
   idleThresholdMinutes: 10,
+  targetCurrency: "",
+  exchangeRate: 0,
 };
 
 interface SettingsState {
@@ -27,6 +40,7 @@ interface SettingsState {
   organisations: PublicOrg[];
   activeOrgId: string | null;
   themeMode: ThemeMode;
+  language: string;
 
   pollSeconds: number;
   accent: AccentName;
@@ -43,6 +57,8 @@ interface SettingsState {
   defaultActivity?: number;
   reminderHours: number;
   idleThresholdMinutes: number;
+  targetCurrency: string;
+  exchangeRate: number;
 
   load: () => Promise<void>;
   addOrg: (input: NewOrgInput) => Promise<void>;
@@ -51,6 +67,7 @@ interface SettingsState {
   switchOrg: (id: string) => Promise<void>;
 
   setThemeMode: (mode: ThemeMode) => Promise<void>;
+  setLanguage: (lang: string) => Promise<void>;
   setPollSeconds: (n: number) => Promise<void>;
   setAccent: (accent: AccentName) => Promise<void>;
   setHourlyRate: (n: number) => Promise<void>;
@@ -65,6 +82,8 @@ interface SettingsState {
   setDefaults: (project?: number, activity?: number) => Promise<void>;
   setReminderHours: (n: number) => Promise<void>;
   setIdleThreshold: (n: number) => Promise<void>;
+  setTargetCurrency: (c: string) => Promise<void>;
+  setExchangeRate: (n: number) => Promise<void>;
 }
 
 const numOrUndef = (v: number | null | undefined): number | undefined =>
@@ -87,6 +106,8 @@ function flatten(settings: OrgSettings) {
     defaultActivity: numOrUndef(settings.defaultActivity),
     reminderHours: settings.reminderHours,
     idleThresholdMinutes: settings.idleThresholdMinutes,
+    targetCurrency: settings.targetCurrency,
+    exchangeRate: settings.exchangeRate,
   };
 }
 
@@ -97,7 +118,9 @@ export const useSettings = create<SettingsState>((set, get) => {
     themeMode: ThemeMode,
   ): void {
     const active =
-      organisations.find((o) => o.id === activeOrgId) ?? organisations[0] ?? null;
+      organisations.find((o) => o.id === activeOrgId) ??
+      organisations[0] ??
+      null;
     const settings = active?.settings ?? DEFAULTS;
     const flat = flatten(settings);
 
@@ -130,11 +153,20 @@ export const useSettings = create<SettingsState>((set, get) => {
     organisations: [],
     activeOrgId: null,
     themeMode: "system",
+    language: "en",
     ...flatten(DEFAULTS),
 
     load: async () => {
       const list = await window.api.org.list();
-      const themeMode = await window.api.prefs.get<ThemeMode>("themeMode", "system");
+      const themeMode = await window.api.prefs.get<ThemeMode>(
+        "themeMode",
+        "system",
+      );
+      const lang = await window.api.prefs.get<string>("language", "en");
+      if (lang !== i18n.language) await i18n.changeLanguage(lang);
+      applyDirection(lang);
+      setFormatLang(lang);
+      set({ language: lang });
       applyList(list.organisations, list.activeOrgId, themeMode);
     },
 
@@ -162,6 +194,15 @@ export const useSettings = create<SettingsState>((set, get) => {
       await window.api.prefs.set("themeMode", mode);
       setTheme(mode);
       set({ themeMode: mode });
+    },
+
+    setLanguage: async (lang) => {
+      await i18n.changeLanguage(lang);
+      applyDirection(lang);
+      setFormatLang(lang);
+      // Persists the pref AND rebuilds the (main-process) tray menu.
+      await window.api.setLanguage(lang);
+      set({ language: lang });
     },
 
     setPollSeconds: async (n) => {
@@ -235,6 +276,17 @@ export const useSettings = create<SettingsState>((set, get) => {
     setIdleThreshold: async (n) => {
       await patchSetting("idleThresholdMinutes", n);
       set({ idleThresholdMinutes: n });
+    },
+
+    setTargetCurrency: async (c) => {
+      const v = c.slice(0, 4);
+      await patchSetting("targetCurrency", v);
+      set({ targetCurrency: v });
+    },
+
+    setExchangeRate: async (n) => {
+      await patchSetting("exchangeRate", n);
+      set({ exchangeRate: n });
     },
   };
 });

@@ -16,5 +16,7 @@ export function Elapsed({ begin, className }: Props) {
     return () => clearInterval(id);
   }, [begin]);
 
-  return <AnimatedNumber value={formatElapsed(seconds)} className={className} />;
+  return (
+    <AnimatedNumber value={formatElapsed(seconds)} className={className} />
+  );
 }

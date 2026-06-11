@@ -14,6 +14,7 @@ export function AnimatedNumber({ value, className }: Props) {
   return (
     <span className={className}>
       {value.split("").map((ch, i) => (
+        // biome-ignore lint/suspicious/noArrayIndexKey: characters are positional
         <RollChar key={i} ch={ch} />
       ))}
     </span>
@@ -26,7 +27,11 @@ const show = (c: string) => (c === " " ? NBSP : c);
 function RollChar({ ch }: { ch: string }) {
   const prev = useRef(ch);
   const seq = useRef(0);
-  const [pair, setPair] = useState<{ from: string; to: string; k: number } | null>(null);
+  const [pair, setPair] = useState<{
+    from: string;
+    to: string;
+    k: number;
+  } | null>(null);
 
   useEffect(() => {
     if (prev.current === ch) return;

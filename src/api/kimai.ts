@@ -1,5 +1,10 @@
+import {
+  monthRangeKimai,
+  recentRangeKimai,
+  toKimaiLocal,
+  toTagStrings,
+} from "../lib/format";
 import { ApiError, request, requestWith } from "./client";
-import { monthRangeKimai, recentRangeKimai, toKimaiLocal, toTagStrings } from "../lib/format";
 import type {
   Connection,
   KimaiActivity,
@@ -32,7 +37,9 @@ export function testConnection(conn: Connection): Promise<KimaiVersion> {
 }
 
 export function getActiveTimesheets(): Promise<KimaiTimesheet[]> {
-  return request<KimaiTimesheet[]>("/api/timesheets/active").then((l) => l.map(normTimesheet));
+  return request<KimaiTimesheet[]>("/api/timesheets/active").then((l) =>
+    l.map(normTimesheet),
+  );
 }
 
 export interface EntryFields {
@@ -50,7 +57,7 @@ function entryBody(fields: EntryFields, extra: Record<string, unknown> = {}) {
     description: fields.description ?? "",
     ...extra,
   };
-  if (fields.tags && fields.tags.length) body.tags = fields.tags.join(",");
+  if (fields.tags?.length) body.tags = fields.tags.join(",");
   if (fields.billable !== undefined) body.billable = fields.billable;
   return body;
 }
@@ -69,7 +76,9 @@ async function sendTimesheet(
     if (isExtraFieldsError(e) && "billable" in body) {
       const retry = { ...body };
       delete retry.billable;
-      return normTimesheet(await request<KimaiTimesheet>(path, { method, body: retry }));
+      return normTimesheet(
+        await request<KimaiTimesheet>(path, { method, body: retry }),
+      );
     }
     throw e;
   }
@@ -126,7 +135,9 @@ export function deleteTimesheet(id: number): Promise<void> {
 }
 
 export function stopTimer(id: number): Promise<KimaiTimesheet> {
-  return request<KimaiTimesheet>(`/api/timesheets/${id}/stop`, { method: "PATCH" }).then(normTimesheet);
+  return request<KimaiTimesheet>(`/api/timesheets/${id}/stop`, {
+    method: "PATCH",
+  }).then(normTimesheet);
 }
 
 export async function restartTimer(
@@ -144,7 +155,9 @@ export async function restartTimer(
   } catch (e) {
     if (!isExtraFieldsError(e)) throw e;
     restarted = normTimesheet(
-      await request<KimaiTimesheet>(`/api/timesheets/${id}/restart`, { method: "PATCH" }),
+      await request<KimaiTimesheet>(`/api/timesheets/${id}/restart`, {
+        method: "PATCH",
+      }),
     );
   }
 
@@ -152,7 +165,7 @@ export async function restartTimer(
   const wantDesc = source.description ?? "";
   const needDesc = !!wantDesc && !(restarted.description ?? "");
   const wantTags = source.tags ?? [];
-  const needTags = wantTags.length > 0 && !(restarted.tags?.length);
+  const needTags = wantTags.length > 0 && !restarted.tags?.length;
   if (!needDesc && !needTags) return restarted;
 
   const patch: UpdateEntryInput = {};
@@ -175,7 +188,9 @@ export function getProjects(customerId?: number): Promise<KimaiProject[]> {
 }
 
 export function getActivities(projectId?: number): Promise<KimaiActivity[]> {
-  const q = projectId ? `&project=${projectId}&globals=true` : "&globalsOnly=true";
+  const q = projectId
+    ? `&project=${projectId}&globals=true`
+    : "&globalsOnly=true";
   return request<KimaiActivity[]>(`/api/activities?visible=1${q}`);
 }
 

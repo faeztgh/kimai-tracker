@@ -1,12 +1,13 @@
 import {
   createContext,
+  type ReactNode,
   useCallback,
   useContext,
   useEffect,
   useRef,
   useState,
-  type ReactNode,
 } from "react";
+import { useTranslation } from "react-i18next";
 
 export interface ConfirmOptions {
   title: string;
@@ -47,7 +48,13 @@ export function ConfirmProvider({ children }: { children: ReactNode }) {
   return (
     <ConfirmContext.Provider value={confirm}>
       {children}
-      {opts && <Dialog opts={opts} onConfirm={() => settle(true)} onCancel={() => settle(false)} />}
+      {opts && (
+        <Dialog
+          opts={opts}
+          onConfirm={() => settle(true)}
+          onCancel={() => settle(false)}
+        />
+      )}
     </ConfirmContext.Provider>
   );
 }
@@ -61,6 +68,7 @@ function Dialog({
   onConfirm: () => void;
   onCancel: () => void;
 }) {
+  const { t } = useTranslation();
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => {
       if (e.key === "Escape") onCancel();
@@ -79,9 +87,13 @@ function Dialog({
         className="anim-pop-in w-full max-w-sm rounded-xl bg-white p-4 shadow-2xl dark:bg-gray-800"
         onMouseDown={(e) => e.stopPropagation()}
       >
-        <h2 className="text-sm font-semibold text-gray-800 dark:text-gray-100">{opts.title}</h2>
+        <h2 className="text-sm font-semibold text-gray-800 dark:text-gray-100">
+          {opts.title}
+        </h2>
         {opts.message && (
-          <p className="mt-1.5 text-sm leading-relaxed text-gray-500 dark:text-gray-400">{opts.message}</p>
+          <p className="mt-1.5 text-sm leading-relaxed text-gray-500 dark:text-gray-400">
+            {opts.message}
+          </p>
         )}
         <div className="mt-4 flex justify-end gap-2">
           {!opts.alert && (
@@ -91,7 +103,7 @@ function Dialog({
               className="rounded-lg px-3 py-1.5 text-sm text-gray-600 transition hover:bg-gray-100
                 dark:text-gray-300 dark:hover:bg-gray-700"
             >
-              {opts.cancelLabel ?? "Cancel"}
+              {opts.cancelLabel ?? t("common.cancel")}
             </button>
           )}
           <button
@@ -99,10 +111,13 @@ function Dialog({
             autoFocus
             onClick={onConfirm}
             className={`rounded-lg px-4 py-1.5 text-sm font-semibold text-white transition active:scale-95 ${
-              opts.danger ? "bg-red-500 hover:bg-red-600" : "bg-accent-500 hover:bg-accent-600"
+              opts.danger
+                ? "bg-red-500 hover:bg-red-600"
+                : "bg-accent-500 hover:bg-accent-600"
             }`}
           >
-            {opts.confirmLabel ?? (opts.alert ? "OK" : "Confirm")}
+            {opts.confirmLabel ??
+              (opts.alert ? t("common.ok") : t("common.confirm"))}
           </button>
         </div>
       </div>

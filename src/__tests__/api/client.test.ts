@@ -1,4 +1,4 @@
-import { describe, it, expect, vi, beforeEach } from "vitest";
+import { describe, expect, it, type vi } from "vitest";
 import { ApiError, request, requestWith } from "../../api/client";
 import type { Connection } from "../../api/types";
 
@@ -52,7 +52,11 @@ describe("request", () => {
 
   it("forwards path, method, body, and timeoutMs", async () => {
     mockReq.mockResolvedValueOnce(OK({}));
-    await request("/api/create", { method: "POST", body: { name: "x" }, timeoutMs: 5000 });
+    await request("/api/create", {
+      method: "POST",
+      body: { name: "x" },
+      timeoutMs: 5000,
+    });
     expect(mockReq).toHaveBeenCalledWith({
       path: "/api/create",
       method: "POST",
@@ -62,7 +66,12 @@ describe("request", () => {
   });
 
   it("returns undefined when body is empty (204 No Content)", async () => {
-    mockReq.mockResolvedValueOnce({ ok: true, status: 204, statusText: "No Content", body: "" });
+    mockReq.mockResolvedValueOnce({
+      ok: true,
+      status: 204,
+      statusText: "No Content",
+      body: "",
+    });
     const result = await request<void>("/api/delete");
     expect(result).toBeUndefined();
   });
@@ -76,7 +85,9 @@ describe("request", () => {
   });
 
   it("throws ApiError with status code on HTTP error", async () => {
-    mockReq.mockResolvedValueOnce(FAIL(403, { message: "Access denied" }, "Forbidden"));
+    mockReq.mockResolvedValueOnce(
+      FAIL(403, { message: "Access denied" }, "Forbidden"),
+    );
     const err = await request("/api/test").catch((e) => e);
     expect(err).toBeInstanceOf(ApiError);
     expect(err.status).toBe(403);
@@ -84,7 +95,9 @@ describe("request", () => {
   });
 
   it("falls back to status+statusText when body has no message", async () => {
-    mockReq.mockResolvedValueOnce(FAIL(500, "Internal error", "Internal Server Error"));
+    mockReq.mockResolvedValueOnce(
+      FAIL(500, "Internal error", "Internal Server Error"),
+    );
     const err = await request("/api/test").catch((e) => e);
     expect(err).toBeInstanceOf(ApiError);
     expect(err.message).toContain("500");
@@ -106,7 +119,9 @@ describe("request", () => {
   });
 
   it("extracts flat validation errors from errors.errors array", async () => {
-    const body = { errors: { errors: ["Field A is missing", "Field B invalid"] } };
+    const body = {
+      errors: { errors: ["Field A is missing", "Field B invalid"] },
+    };
     mockReq.mockResolvedValueOnce(FAIL(400, body, "Bad Request"));
     const err = await request("/api/test").catch((e) => e);
     expect(err.message).toContain("Field A is missing");
@@ -134,7 +149,9 @@ describe("requestWith", () => {
   });
 
   it("throws ApiError on HTTP failure", async () => {
-    mockReqWith.mockResolvedValueOnce(FAIL(401, { message: "Unauthorized" }, "Unauthorized"));
+    mockReqWith.mockResolvedValueOnce(
+      FAIL(401, { message: "Unauthorized" }, "Unauthorized"),
+    );
     const err = await requestWith(conn, "/api/version").catch((e) => e);
     expect(err).toBeInstanceOf(ApiError);
     expect(err.status).toBe(401);

@@ -17,34 +17,69 @@
 }
 
 :root[data-accent="violet"] {
-  --color-accent-50: #f5f3ff; --color-accent-100: #ede9fe; --color-accent-200: #ddd6fe;
-  --color-accent-300: #c4b5fd; --color-accent-400: #a78bfa; --color-accent-500: #8b5cf6;
-  --color-accent-600: #7c3aed; --color-accent-700: #6d28d9; --color-accent-800: #5b21b6;
-  --color-accent-900: #4c1d95; --color-accent-950: #2e1065;
+  --color-accent-50: #f5f3ff;
+  --color-accent-100: #ede9fe;
+  --color-accent-200: #ddd6fe;
+  --color-accent-300: #c4b5fd;
+  --color-accent-400: #a78bfa;
+  --color-accent-500: #8b5cf6;
+  --color-accent-600: #7c3aed;
+  --color-accent-700: #6d28d9;
+  --color-accent-800: #5b21b6;
+  --color-accent-900: #4c1d95;
+  --color-accent-950: #2e1065;
 }
 :root[data-accent="emerald"] {
-  --color-accent-50: #ecfdf5; --color-accent-100: #d1fae5; --color-accent-200: #a7f3d0;
-  --color-accent-300: #6ee7b7; --color-accent-400: #34d399; --color-accent-500: #10b981;
-  --color-accent-600: #059669; --color-accent-700: #047857; --color-accent-800: #065f46;
-  --color-accent-900: #064e3b; --color-accent-950: #022c22;
+  --color-accent-50: #ecfdf5;
+  --color-accent-100: #d1fae5;
+  --color-accent-200: #a7f3d0;
+  --color-accent-300: #6ee7b7;
+  --color-accent-400: #34d399;
+  --color-accent-500: #10b981;
+  --color-accent-600: #059669;
+  --color-accent-700: #047857;
+  --color-accent-800: #065f46;
+  --color-accent-900: #064e3b;
+  --color-accent-950: #022c22;
 }
 :root[data-accent="rose"] {
-  --color-accent-50: #fff1f2; --color-accent-100: #ffe4e6; --color-accent-200: #fecdd3;
-  --color-accent-300: #fda4af; --color-accent-400: #fb7185; --color-accent-500: #f43f5e;
-  --color-accent-600: #e11d48; --color-accent-700: #be123c; --color-accent-800: #9f1239;
-  --color-accent-900: #881337; --color-accent-950: #4c0519;
+  --color-accent-50: #fff1f2;
+  --color-accent-100: #ffe4e6;
+  --color-accent-200: #fecdd3;
+  --color-accent-300: #fda4af;
+  --color-accent-400: #fb7185;
+  --color-accent-500: #f43f5e;
+  --color-accent-600: #e11d48;
+  --color-accent-700: #be123c;
+  --color-accent-800: #9f1239;
+  --color-accent-900: #881337;
+  --color-accent-950: #4c0519;
 }
 :root[data-accent="amber"] {
-  --color-accent-50: #fffbeb; --color-accent-100: #fef3c7; --color-accent-200: #fde68a;
-  --color-accent-300: #fcd34d; --color-accent-400: #fbbf24; --color-accent-500: #f59e0b;
-  --color-accent-600: #d97706; --color-accent-700: #b45309; --color-accent-800: #92400e;
-  --color-accent-900: #78350f; --color-accent-950: #451a03;
+  --color-accent-50: #fffbeb;
+  --color-accent-100: #fef3c7;
+  --color-accent-200: #fde68a;
+  --color-accent-300: #fcd34d;
+  --color-accent-400: #fbbf24;
+  --color-accent-500: #f59e0b;
+  --color-accent-600: #d97706;
+  --color-accent-700: #b45309;
+  --color-accent-800: #92400e;
+  --color-accent-900: #78350f;
+  --color-accent-950: #451a03;
 }
 :root[data-accent="sky"] {
-  --color-accent-50: #f0f9ff; --color-accent-100: #e0f2fe; --color-accent-200: #bae6fd;
-  --color-accent-300: #7dd3fc; --color-accent-400: #38bdf8; --color-accent-500: #0ea5e9;
-  --color-accent-600: #0284c7; --color-accent-700: #0369a1; --color-accent-800: #075985;
-  --color-accent-900: #0c4a6e; --color-accent-950: #082f49;
+  --color-accent-50: #f0f9ff;
+  --color-accent-100: #e0f2fe;
+  --color-accent-200: #bae6fd;
+  --color-accent-300: #7dd3fc;
+  --color-accent-400: #38bdf8;
+  --color-accent-500: #0ea5e9;
+  --color-accent-600: #0284c7;
+  --color-accent-700: #0369a1;
+  --color-accent-800: #075985;
+  --color-accent-900: #0c4a6e;
+  --color-accent-950: #082f49;
 }
 
 html,
@@ -56,8 +91,9 @@ body,
 
 body {
   overflow: hidden;
-  font-family: Inter, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto,
-    Helvetica, Arial, sans-serif;
+  font-family:
+    Inter, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica,
+    Arial, sans-serif;
   background-color: #f3f4f6;
   color: #111827;
   -webkit-font-smoothing: antialiased;
@@ -151,7 +187,7 @@ input:-webkit-autofill:focus {
   overflow: hidden;
   height: 1.1em;
   line-height: 1.1em;
-  vertical-align: baseline;
+  vertical-align: top;
 }
 .roll-line {
   display: block;
@@ -240,4 +276,20 @@ input:-webkit-autofill:focus {
   .anim-dropdown {
     animation: none;
   }
+}
+
+/* ── RTL support ─────────────────────────────── */
+[dir="rtl"] input[type="datetime-local"] {
+  direction: ltr; /* datetime inputs always display LTR */
+  text-align: right;
+}
+
+[dir="rtl"] .font-mono {
+  direction: ltr; /* keep timers/numbers LTR inside RTL layout */
+  unicode-bidi: embed;
+}
+
+[dir="rtl"] select,
+[dir="rtl"] input[type="number"] {
+  text-align: right;
 }

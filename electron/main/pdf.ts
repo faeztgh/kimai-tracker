@@ -1,5 +1,5 @@
-import { BrowserWindow, dialog, session } from "electron";
 import { writeFile } from "node:fs/promises";
+import { BrowserWindow, dialog, session } from "electron";
 import { getMainWindow } from "./windows";
 
 export interface PdfResult {
@@ -65,7 +65,10 @@ export async function exportReportPdf(
     await writeFile(result.filePath, pdf);
     return { ok: true, path: result.filePath };
   } catch (err) {
-    return { ok: false, error: err instanceof Error ? err.message : String(err) };
+    return {
+      ok: false,
+      error: err instanceof Error ? err.message : String(err),
+    };
   } finally {
     if (!win.isDestroyed()) win.destroy();
   }

@@ -1,33 +1,34 @@
 import { ipcMain, shell } from "electron";
+import { getAutostart, setAutostart } from "./autostart";
 import {
   addOrganisation,
+  type Connection,
   DEFAULT_SETTINGS,
   getActive,
   listOrganisations,
+  type NewOrgInput,
+  type OrgPatch,
+  type OrgSettings,
   removeOrganisation,
   setActiveOrg,
   setOrgSetting,
   updateOrganisation,
-  type Connection,
-  type NewOrgInput,
-  type OrgPatch,
-  type OrgSettings,
 } from "./connection";
-import { kimaiFetch, type KimaiRequest, type KimaiResponse } from "./http";
+import { type KimaiRequest, type KimaiResponse, kimaiFetch } from "./http";
+import { setTimerRunning } from "./idle";
+import { showNotification, updateReminder } from "./notifications";
+import { exportReportPdf } from "./pdf";
 import { prefs } from "./prefs";
 import { secrets } from "./secrets";
-import { exportReportPdf } from "./pdf";
-import { getAutostart, setAutostart } from "./autostart";
+import { refreshTrayMenu, updateTrayStatus } from "./tray";
 import {
   broadcast,
   hideFloating,
+  pinFloating,
   setTimerRunningIndicator,
   showMain,
   toggleFloating,
 } from "./windows";
-import { updateTrayStatus } from "./tray";
-import { showNotification, updateReminder } from "./notifications";
-import { setTimerRunning } from "./idle";
 
 const NOT_CONNECTED: KimaiResponse = {
   ok: false,
@@ -57,7 +58,10 @@ export function registerIpc(): void {
   ipcMain.handle(
     "kimai:requestWith",
     (_e, conn: Connection, req: KimaiRequest) => {
-      if (typeof conn?.baseUrl !== "string" || !/^https?:\/\//i.test(conn.baseUrl)) {
+      if (
+        typeof conn?.baseUrl !== "string" ||
+        !/^https?:\/\//i.test(conn.baseUrl)
+      ) {
         return INVALID_URL;
       }
       return kimaiFetch(conn, req);
@@ -85,18 +89,15 @@ export function registerIpc(): void {
     broadcast("org:changed");
     return list;
   });
-  ipcMain.handle(
-    "org:setSetting",
-    (_e, key: string, value: unknown) => {
-      if (!ORG_SETTING_KEYS.has(key)) return listOrganisations();
-      const list = setOrgSetting(
-        key as keyof OrgSettings,
-        value as OrgSettings[keyof OrgSettings],
-      );
-      broadcast("org:changed");
-      return list;
-    },
-  );
+  ipcMain.handle("org:setSetting", (_e, key: string, value: unknown) => {
+    if (!ORG_SETTING_KEYS.has(key)) return listOrganisations();
+    const list = setOrgSetting(
+      key as keyof OrgSettings,
+      value as OrgSettings[keyof OrgSettings],
+    );
+    broadcast("org:changed");
+    return list;
+  });
   ipcMain.handle("org:secretBackend", () => secrets.backend());
 
   ipcMain.handle("prefs:get", (_e, key: string, fallback: unknown) =>
@@ -107,10 +108,8 @@ export function registerIpc(): void {
     prefs.set(key, value);
   });
 
-  ipcMain.handle(
-    "pdf:export",
-    (_e, html: string, suggestedName: string) =>
-      exportReportPdf(html, suggestedName),
+  ipcMain.handle("pdf:export", (_e, html: string, suggestedName: string) =>
+    exportReportPdf(html, suggestedName),
   );
 
   ipcMain.handle("autostart:get", () => getAutostart());
@@ -122,10 +121,19 @@ export function registerIpc(): void {
     return Promise.resolve();
   });
 
+  ipcMain.handle("i18n:setLanguage", (_e, lang: unknown) => {
+    if (typeof lang === "string") {
+      prefs.set("language", lang);
+      refreshTrayMenu(); // re-localize the tray menu immediately
+      broadcast("language:changed", lang); // tell every renderer window to switch
+    }
+  });
+
   ipcMain.on("windows:toggleFloating", () => toggleFloating());
   ipcMain.on("windows:hideFloating", () => hideFloating());
   ipcMain.on("windows:showMain", () => showMain());
   ipcMain.on("windows:syncData", () => broadcast("data:changed"));
+  ipcMain.on("windows:pinFloating", () => pinFloating());
 
   ipcMain.on("notify", (_e, p: { title?: unknown; body?: unknown }) => {
     if (typeof p?.title === "string" && typeof p?.body === "string") {

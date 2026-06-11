@@ -2,7 +2,7 @@
  * Basic launch / window smoke tests.
  * These run against the built app (pnpm build required).
  */
-import { test, expect } from "./fixtures";
+import { expect, test } from "./fixtures";
 
 test("app opens a visible window", async ({ page }) => {
   await expect(page).toBeDefined();

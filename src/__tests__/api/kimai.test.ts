@@ -1,16 +1,15 @@
-import { describe, it, expect, vi } from "vitest";
+import { describe, expect, it, type vi } from "vitest";
 import {
-  getActiveTimesheets,
-  startTimer,
-  stopTimer,
   deleteTimesheet,
+  getActiveTimesheets,
+  getActivities,
   getCustomers,
   getProjects,
-  getActivities,
   getRecentTimesheets,
+  startTimer,
+  stopTimer,
   testConnection,
 } from "../../api/kimai";
-import { ApiError } from "../../api/client";
 import type { KimaiTimesheet } from "../../api/types";
 
 const mockReq = window.api.kimai.request as ReturnType<typeof vi.fn>;
@@ -21,13 +20,6 @@ const ok = (body: unknown) => ({
   status: 200,
   statusText: "OK",
   body: JSON.stringify(body),
-});
-
-const fail = (status: number, msg: string) => ({
-  ok: false,
-  status,
-  statusText: msg,
-  body: JSON.stringify({ message: msg }),
 });
 
 const TIMESHEET_OBJECT: KimaiTimesheet = {
@@ -93,13 +85,19 @@ describe("startTimer", () => {
     const call = mockReq.mock.calls[0][0];
     expect(call.path).toBe("/api/timesheets");
     expect(call.method).toBe("POST");
-    expect(call.body).toMatchObject({ project: 10, activity: 20, description: "Test" });
+    expect(call.body).toMatchObject({
+      project: 10,
+      activity: 20,
+      description: "Test",
+    });
   });
 
   it("includes begin timestamp in the body", async () => {
     mockReq.mockResolvedValueOnce(ok(TIMESHEET_OBJECT));
     await startTimer({ project: 1, activity: 2 });
-    const { body } = mockReq.mock.calls[0][0] as { body: Record<string, unknown> };
+    const { body } = mockReq.mock.calls[0][0] as {
+      body: Record<string, unknown>;
+    };
     expect(typeof body.begin).toBe("string");
     expect(body.begin).toMatch(/^\d{4}-\d{2}-\d{2}T/);
   });
@@ -107,7 +105,9 @@ describe("startTimer", () => {
   it("joins tags as comma-separated string", async () => {
     mockReq.mockResolvedValueOnce(ok(TIMESHEET_OBJECT));
     await startTimer({ project: 1, activity: 2, tags: ["a", "b"] });
-    const { body } = mockReq.mock.calls[0][0] as { body: Record<string, unknown> };
+    const { body } = mockReq.mock.calls[0][0] as {
+      body: Record<string, unknown>;
+    };
     expect(body.tags).toBe("a,b");
   });
 
@@ -122,7 +122,11 @@ describe("startTimer", () => {
       .mockResolvedValueOnce(extraFieldsErr)
       .mockResolvedValueOnce(ok(TIMESHEET_OBJECT));
 
-    const result = await startTimer({ project: 1, activity: 2, billable: true });
+    const result = await startTimer({
+      project: 1,
+      activity: 2,
+      billable: true,
+    });
     expect(mockReq).toHaveBeenCalledTimes(2);
     // Second call should omit billable
     const secondBody = mockReq.mock.calls[1][0].body as Record<string, unknown>;
@@ -133,17 +137,27 @@ describe("startTimer", () => {
 
 describe("stopTimer", () => {
   it("PATCHes /api/timesheets/{id}/stop", async () => {
-    mockReq.mockResolvedValueOnce(ok({ ...TIMESHEET_OBJECT, end: "2024-06-05T10:00:00" }));
+    mockReq.mockResolvedValueOnce(
+      ok({ ...TIMESHEET_OBJECT, end: "2024-06-05T10:00:00" }),
+    );
     await stopTimer(42);
     expect(mockReq).toHaveBeenCalledWith(
-      expect.objectContaining({ path: "/api/timesheets/42/stop", method: "PATCH" }),
+      expect.objectContaining({
+        path: "/api/timesheets/42/stop",
+        method: "PATCH",
+      }),
     );
   });
 });
 
 describe("deleteTimesheet", () => {
   it("sends DELETE /api/timesheets/{id}", async () => {
-    mockReq.mockResolvedValueOnce({ ok: true, status: 204, statusText: "No Content", body: "" });
+    mockReq.mockResolvedValueOnce({
+      ok: true,
+      status: 204,
+      statusText: "No Content",
+      body: "",
+    });
     await deleteTimesheet(7);
     expect(mockReq).toHaveBeenCalledWith(
       expect.objectContaining({ path: "/api/timesheets/7", method: "DELETE" }),
@@ -195,7 +209,11 @@ describe("getActivities", () => {
 
 describe("testConnection", () => {
   it("calls requestWith using /api/version with a 10s timeout", async () => {
-    const conn = { baseUrl: "https://demo.kimai.org", authMode: "bearer" as const, token: "tok" };
+    const conn = {
+      baseUrl: "https://demo.kimai.org",
+      authMode: "bearer" as const,
+      token: "tok",
+    };
     mockReqWith.mockResolvedValueOnce(ok({ version: "2.0" }));
     const result = await testConnection(conn);
     expect(result).toEqual({ version: "2.0" });

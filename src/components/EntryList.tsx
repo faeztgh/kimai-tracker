@@ -1,21 +1,16 @@
 import { useMemo, useState } from "react";
-import { DayGroup } from "./DayGroup";
-import { EntryRow } from "./EntryRow";
-import { EntryEditModal } from "./EntryEditModal";
-import { useConfirm } from "./ConfirmDialog";
-import { useEntries, useTimerMutations } from "../hooks/useTimer";
-import { useEntityLookup } from "../hooks/useEntities";
-import { dayKey, dayLabel, durationOf } from "../lib/format";
+import { useTranslation } from "react-i18next";
 import type { KimaiTimesheet } from "../api/types";
-
-const DELETE_CONFIRM = {
-  title: "Delete entry?",
-  message: "This time entry will be permanently deleted from Kimai.",
-  confirmLabel: "Delete",
-  danger: true,
-} as const;
+import { useEntityLookup } from "../hooks/useEntities";
+import { useEntries, useTimerMutations } from "../hooks/useTimer";
+import { dayKey, dayLabel, durationOf } from "../lib/format";
+import { useConfirm } from "./ConfirmDialog";
+import { DayGroup } from "./DayGroup";
+import { EntryEditModal } from "./EntryEditModal";
+import { EntryRow } from "./EntryRow";
 
 export function EntryList() {
+  const { t } = useTranslation();
   const entries = useEntries();
   const lookup = useEntityLookup();
   const confirm = useConfirm();
@@ -33,7 +28,11 @@ export function EntryList() {
   }, [entries.data]);
 
   if (entries.isLoading) {
-    return <p className="p-4 text-sm text-gray-400 dark:text-gray-500">Loading entries…</p>;
+    return (
+      <p className="p-4 text-sm text-gray-400 dark:text-gray-500">
+        {t("entries.loadingEntries")}
+      </p>
+    );
   }
   if (entries.error instanceof Error) {
     return <p className="p-4 text-sm text-red-500">{entries.error.message}</p>;
@@ -41,30 +40,48 @@ export function EntryList() {
   if (groups.length === 0) {
     return (
       <p className="p-6 text-center text-sm text-gray-400 dark:text-gray-500">
-        No time entries in the last 7 days.
+        {t("entries.noEntries")}
       </p>
     );
   }
 
-  const onResume = (t: KimaiTimesheet) => restart.mutate(t);
-  const onDelete = async (t: KimaiTimesheet) => {
-    if (await confirm(DELETE_CONFIRM)) remove.mutate(t.id);
+  const onResume = (entry: KimaiTimesheet) => restart.mutate(entry);
+  const onDelete = async (entry: KimaiTimesheet) => {
+    if (
+      await confirm({
+        title: t("entries.deleteEntry"),
+        message: t("entries.deleteEntryMsg"),
+        confirmLabel: t("common.delete"),
+        danger: true,
+      })
+    )
+      remove.mutate(entry.id);
   };
-  const onDuplicate = (t: KimaiTimesheet) => duplicate.mutate(t);
-  const onSplit = async (t: KimaiTimesheet) => {
-    if (!t.end) return;
-    if (durationOf(t) < 2) {
-      await confirm({ title: "Can't split", message: "This entry is too short to split.", alert: true });
+  const onDuplicate = (entry: KimaiTimesheet) => duplicate.mutate(entry);
+  const onSplit = async (entry: KimaiTimesheet) => {
+    if (!entry.end) return;
+    if (durationOf(entry) < 2) {
+      await confirm({
+        title: t("entries.cantSplit"),
+        message: t("entries.cantSplitMsg"),
+        alert: true,
+      });
       return;
     }
-    split.mutate(t);
+    split.mutate(entry);
+  };
+
+  const onSetDuration = (t: KimaiTimesheet, seconds: number) => {
+    const newEnd = new Date(new Date(t.begin).getTime() + seconds * 1000);
+    update.mutate({ id: t.id, patch: { end: newEnd } });
   };
 
   const busy =
     restart.isPending ||
     remove.isPending ||
     duplicate.isPending ||
-    split.isPending;
+    split.isPending ||
+    update.isPending;
 
   return (
     <>
@@ -84,6 +101,7 @@ export function EntryList() {
               onDelete={onDelete}
               onDuplicate={onDuplicate}
               onSplit={onSplit}
+              onSetDuration={onSetDuration}
               disabled={busy}
             />
           ))}
@@ -101,7 +119,14 @@ export function EntryList() {
             );
           }}
           onDelete={async () => {
-            if (await confirm(DELETE_CONFIRM)) {
+            if (
+              await confirm({
+                title: t("entries.deleteEntry"),
+                message: t("entries.deleteEntryMsg"),
+                confirmLabel: t("common.delete"),
+                danger: true,
+              })
+            ) {
               remove.mutate(editing.id, { onSuccess: () => setEditing(null) });
             }
           }}

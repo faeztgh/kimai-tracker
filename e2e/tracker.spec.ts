@@ -1,7 +1,7 @@
 /**
  * Tracker UI tests in authenticated state (IPC handlers mocked).
  */
-import { test, expect, mockAuthenticatedState } from "./fixtures";
+import { expect, mockAuthenticatedState, test } from "./fixtures";
 
 test.beforeEach(async ({ electronApp, page }) => {
   await mockAuthenticatedState(electronApp, page);
@@ -20,9 +20,9 @@ test("tracker tab is visible and selected by default", async ({ page }) => {
     await expect(trackerTab).toBeVisible({ timeout: 5000 });
   } else {
     // Fallback: check that a start-timer button exists
-    await expect(
-      page.getByRole("button", { name: /start/i }),
-    ).toBeVisible({ timeout: 5000 });
+    await expect(page.getByRole("button", { name: /start/i })).toBeVisible({
+      timeout: 5000,
+    });
   }
 });
 
@@ -52,7 +52,9 @@ test("can type a description without errors", async ({ page }) => {
   }
 });
 
-test("navigation tabs are rendered (Dashboard, Reports, Settings)", async ({ page }) => {
+test("navigation tabs are rendered (Dashboard, Reports, Settings)", async ({
+  page,
+}) => {
   const tabNames = ["Dashboard", "Reports", "Settings"];
 
   for (const name of tabNames) {
@@ -81,9 +83,7 @@ test("clicking Dashboard tab shows the dashboard view", async ({ page }) => {
 
   await dashTab.click();
   // Dashboard should show stats or a chart section
-  const dashContent = page
-    .getByText(/today|week|month/i)
-    .first();
+  const dashContent = page.getByText(/today|week|month/i).first();
   await expect(dashContent).toBeVisible({ timeout: 3000 });
 });
 
@@ -100,9 +100,7 @@ test("clicking Reports tab shows the reports view", async ({ page }) => {
 
   await reportsTab.click();
   // Reports view contains a date range selector or export button
-  const reportsContent = page
-    .getByText(/export|week|month|custom/i)
-    .first();
+  const reportsContent = page.getByText(/export|week|month|custom/i).first();
   await expect(reportsContent).toBeVisible({ timeout: 3000 });
 });
 

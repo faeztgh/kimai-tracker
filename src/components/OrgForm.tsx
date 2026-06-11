@@ -1,7 +1,7 @@
 import { useState } from "react";
-import { Button, TextField } from "./ui";
 import { testConnection } from "../api/kimai";
 import type { AuthMode } from "../api/types";
+import { Button, TextField } from "./ui";
 
 type Status =
   | { kind: "idle" }
@@ -19,13 +19,24 @@ export interface OrgFormValue {
 
 interface Props {
   mode: "create" | "edit";
-  initial?: { alias: string; baseUrl: string; authMode: AuthMode; username: string };
+  initial?: {
+    alias: string;
+    baseUrl: string;
+    authMode: AuthMode;
+    username: string;
+  };
   submitLabel?: string;
   onSubmit: (value: OrgFormValue) => Promise<void>;
   onCancel?: () => void;
 }
 
-export function OrgForm({ mode, initial, submitLabel, onSubmit, onCancel }: Props) {
+export function OrgForm({
+  mode,
+  initial,
+  submitLabel,
+  onSubmit,
+  onCancel,
+}: Props) {
   const [alias, setAlias] = useState(initial?.alias ?? "");
   const [baseUrl, setBaseUrl] = useState(initial?.baseUrl ?? "");
   const [token, setToken] = useState("");
@@ -139,10 +150,15 @@ export function OrgForm({ mode, initial, submitLabel, onSubmit, onCancel }: Prop
       </label>
 
       <div className="flex items-center gap-2">
-        <Button type="submit" disabled={status.kind === "testing"} className="w-full">
+        <Button
+          type="submit"
+          disabled={status.kind === "testing"}
+          className="w-full"
+        >
           {status.kind === "testing"
             ? "Testing…"
-            : (submitLabel ?? (mode === "create" ? "Test & Save" : "Save changes"))}
+            : (submitLabel ??
+              (mode === "create" ? "Test & Save" : "Save changes"))}
         </Button>
         {onCancel && (
           <Button variant="secondary" onClick={onCancel}>

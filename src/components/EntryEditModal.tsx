@@ -1,13 +1,14 @@
 import { useState } from "react";
-import { Picker } from "./Picker";
-import { DateTimePicker } from "./DateTimePicker";
-import { TagSelect } from "./TagSelect";
-import { useActivityOptions, useProjectOptions } from "../hooks/usePickerData";
-import { useTags } from "../hooks/useEntities";
-import { useSettings } from "../store/settings";
-import { toDatetimeLocalInput, toTagStrings } from "../lib/format";
+import { useTranslation } from "react-i18next";
 import type { UpdateEntryInput } from "../api/kimai";
 import type { KimaiTimesheet } from "../api/types";
+import { useTags } from "../hooks/useEntities";
+import { useActivityOptions, useProjectOptions } from "../hooks/usePickerData";
+import { toDatetimeLocalInput, toTagStrings } from "../lib/format";
+import { useSettings } from "../store/settings";
+import { DateTimePicker } from "./DateTimePicker";
+import { Picker } from "./Picker";
+import { TagSelect } from "./TagSelect";
 
 interface Props {
   timer: KimaiTimesheet;
@@ -22,11 +23,22 @@ const field =
   "w-full rounded-lg border border-gray-300 bg-white px-2.5 py-1.5 text-sm text-gray-800 " +
   "focus:border-accent-400 focus:outline-none dark:border-gray-600 dark:bg-gray-700 dark:text-gray-100";
 
-export function EntryEditModal({ timer, onClose, onSave, onDelete, saving }: Props) {
+export function EntryEditModal({
+  timer,
+  onClose,
+  onSave,
+  onDelete,
+  saving,
+}: Props) {
+  const { t } = useTranslation();
   const [desc, setDesc] = useState(timer.description ?? "");
   const [projectId, setProjectId] = useState<number | undefined>(timer.project);
-  const [activityId, setActivityId] = useState<number | undefined>(timer.activity);
-  const [begin, setBegin] = useState(toDatetimeLocalInput(new Date(timer.begin)));
+  const [activityId, setActivityId] = useState<number | undefined>(
+    timer.activity,
+  );
+  const [begin, setBegin] = useState(
+    toDatetimeLocalInput(new Date(timer.begin)),
+  );
   const [end, setEnd] = useState(
     timer.end ? toDatetimeLocalInput(new Date(timer.end)) : "",
   );
@@ -72,22 +84,24 @@ export function EntryEditModal({ timer, onClose, onSave, onDelete, saving }: Pro
         className="max-h-[calc(100vh-2rem)] w-full max-w-lg space-y-3 overflow-y-auto rounded-xl bg-white p-4 shadow-2xl dark:bg-gray-800"
         onMouseDown={(e) => e.stopPropagation()}
       >
-        <h2 className="text-sm font-semibold text-gray-800 dark:text-gray-100">Edit entry</h2>
+        <h2 className="text-sm font-semibold text-gray-800 dark:text-gray-100">
+          {t("editModal.title")}
+        </h2>
 
         <div>
-          <span className={labelCls}>Description</span>
+          <span className={labelCls}>{t("editModal.description")}</span>
           <input
             className={`mt-1 ${field}`}
             value={desc}
             onChange={(e) => setDesc(e.target.value)}
-            placeholder="(no description)"
+            placeholder={t("entries.noDescription")}
             autoFocus
           />
         </div>
 
         <div className="grid grid-cols-1 gap-2 sm:grid-cols-2">
           <div className="min-w-0">
-            <span className={labelCls}>Project</span>
+            <span className={labelCls}>{t("editModal.project")}</span>
             <div className="mt-1">
               <Picker
                 options={projects.options}
@@ -96,20 +110,20 @@ export function EntryEditModal({ timer, onClose, onSave, onDelete, saving }: Pro
                   setProjectId(id);
                   setActivityId(undefined);
                 }}
-                placeholder="Project"
+                placeholder={t("editModal.project")}
                 loading={projects.loading}
                 dot
               />
             </div>
           </div>
           <div className="min-w-0">
-            <span className={labelCls}>Activity</span>
+            <span className={labelCls}>{t("editModal.activity")}</span>
             <div className="mt-1">
               <Picker
                 options={activities.options}
                 value={activityId}
                 onChange={setActivityId}
-                placeholder="Activity"
+                placeholder={t("editModal.activity")}
                 disabled={projectId === undefined}
                 loading={activities.loading}
                 dot
@@ -120,22 +134,30 @@ export function EntryEditModal({ timer, onClose, onSave, onDelete, saving }: Pro
 
         <div className="grid grid-cols-1 gap-2 sm:grid-cols-2">
           <div className="min-w-0">
-            <span className={labelCls}>Start</span>
+            <span className={labelCls}>{t("editModal.startTime")}</span>
             <div className="mt-1">
-              <DateTimePicker value={begin} onChange={setBegin} placeholder="Start" />
+              <DateTimePicker
+                value={begin}
+                onChange={setBegin}
+                placeholder={t("editModal.startTime")}
+              />
             </div>
           </div>
           <div className="min-w-0">
-            <span className={labelCls}>End</span>
+            <span className={labelCls}>{t("editModal.endTime")}</span>
             <div className="mt-1">
-              <DateTimePicker value={end} onChange={setEnd} placeholder="Running (no end)" />
+              <DateTimePicker
+                value={end}
+                onChange={setEnd}
+                placeholder={t("editModal.runningNoEnd")}
+              />
             </div>
           </div>
         </div>
 
         {showTags && (
           <div>
-            <span className={labelCls}>Tags</span>
+            <span className={labelCls}>{t("editModal.tags")}</span>
             <div className="mt-1">
               <TagSelect
                 options={tagsQuery.data ?? []}
@@ -155,7 +177,7 @@ export function EntryEditModal({ timer, onClose, onSave, onDelete, saving }: Pro
             onClick={onDelete}
             className="text-sm font-medium text-red-500 hover:text-red-600"
           >
-            Delete
+            {t("editModal.delete")}
           </button>
           <div className="flex gap-2">
             <button
@@ -164,7 +186,7 @@ export function EntryEditModal({ timer, onClose, onSave, onDelete, saving }: Pro
               className="rounded-lg px-3 py-1.5 text-sm text-gray-600 hover:bg-gray-100
                 dark:text-gray-300 dark:hover:bg-gray-700"
             >
-              Cancel
+              {t("common.cancel")}
             </button>
             <button
               type="button"
@@ -173,7 +195,7 @@ export function EntryEditModal({ timer, onClose, onSave, onDelete, saving }: Pro
               className="rounded-lg bg-accent-500 px-4 py-1.5 text-sm font-semibold text-white
                 transition hover:bg-accent-600 active:scale-95 disabled:opacity-50"
             >
-              {saving ? "Saving…" : "Save"}
+              {saving ? t("common.saving") : t("common.save")}
             </button>
           </div>
         </div>

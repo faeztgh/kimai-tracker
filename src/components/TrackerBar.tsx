@@ -1,14 +1,21 @@
-import { useEffect, useRef, useState } from "react";
-import { Picker } from "./Picker";
-import { TagSelect } from "./TagSelect";
-import { DateTimePicker } from "./DateTimePicker";
-import { AnimatedNumber } from "./AnimatedNumber";
-import { useConfirm } from "./ConfirmDialog";
-import { useActiveTimer, useTimerMutations } from "../hooks/useTimer";
-import { useActivityOptions, useProjectOptions } from "../hooks/usePickerData";
+import { useEffect, useMemo, useRef, useState } from "react";
+import { createPortal } from "react-dom";
+import { useTranslation } from "react-i18next";
+import type { UpdateEntryInput } from "../api/kimai";
+import { useDismiss } from "../hooks/useDismiss";
 import { useEntityLookup, useTags } from "../hooks/useEntities";
-import { useSettings } from "../store/settings";
+import { useActivityOptions, useProjectOptions } from "../hooks/usePickerData";
 import { useTick } from "../hooks/useTick";
+import {
+  useActiveTimer,
+  useEntries,
+  useTimerMutations,
+} from "../hooks/useTimer";
+import {
+  clearTimerStart,
+  markTimerStart,
+  useTimerStart,
+} from "../hooks/useTimerStart";
 import {
   formatDurationShort,
   formatTimer,
@@ -16,7 +23,12 @@ import {
   toDatetimeLocalInput,
   toTagStrings,
 } from "../lib/format";
-import type { UpdateEntryInput } from "../api/kimai";
+import { useSettings } from "../store/settings";
+import { AnimatedNumber } from "./AnimatedNumber";
+import { useConfirm } from "./ConfirmDialog";
+import { DateTimePicker } from "./DateTimePicker";
+import { Picker } from "./Picker";
+import { TagSelect } from "./TagSelect";
 
 type Mode = "timer" | "manual";
 
@@ -27,6 +39,7 @@ function defaultManualRange() {
 }
 
 export function TrackerBar() {
+  const { t } = useTranslation();
   const active = useActiveTimer().data ?? null;
   const running = active !== null;
   const { start, stop, manual, update, remove } = useTimerMutations();
@@ -47,17 +60,31 @@ export function TrackerBar() {
   const [mode, setMode] = useState<Mode>("timer");
   const [range, setRange] = useState(defaultManualRange);
   const [error, setError] = useState<string | null>(null);
-  const [editField, setEditField] = useState<"project" | "activity" | null>(null);
+  const [editField, setEditField] = useState<"project" | "activity" | null>(
+    null,
+  );
   const [editingTime, setEditingTime] = useState(false);
   const [startDraft, setStartDraft] = useState("");
   const [saved, setSaved] = useState(false);
+  const [suggestOpen, setSuggestOpen] = useState(false);
+  const [suggestIdx, setSuggestIdx] = useState(-1);
+  const [suggestPos, setSuggestPos] = useState<{
+    top: number;
+    left: number;
+    width: number;
+  }>({ top: 0, left: 0, width: 0 });
   const savedTimer = useRef<number | undefined>(undefined);
   const appliedDefaults = useRef(false);
+  const startedAt = useRef<{ id: number; ms: number } | null>(null);
   const descRef = useRef<HTMLInputElement>(null);
+  const suggestRef = useRef<HTMLDivElement>(null);
 
+  const entries = useEntries();
+  const persistedStart = useTimerStart();
   const projects = useProjectOptions();
   const activities = useActivityOptions(projectId);
 
+  // biome-ignore lint/correctness/useExhaustiveDependencies: reset form only when active timer identity changes
   useEffect(() => {
     if (active) {
       setDesc(active.description ?? "");
@@ -69,14 +96,21 @@ export function TrackerBar() {
       setDesc("");
       setTags([]);
       setBillable(true);
+      startedAt.current = null; // clear on stop
+      clearTimerStart(); // forget the shared press moment too
     }
     setEditField(null);
     setEditingTime(false);
     setError(null);
-  }, [active?.id]); // eslint-disable-line react-hooks/exhaustive-deps
+  }, [active?.id]);
 
   useEffect(() => {
-    if (!running && !appliedDefaults.current && projectId === undefined && defaultProject !== undefined) {
+    if (
+      !running &&
+      !appliedDefaults.current &&
+      projectId === undefined &&
+      defaultProject !== undefined
+    ) {
       setProjectId(defaultProject);
       setActivityId(defaultActivity);
       appliedDefaults.current = true;
@@ -84,6 +118,26 @@ export function TrackerBar() {
   }, [running, projectId, defaultProject, defaultActivity]);
 
   useTick(running);
+
+  const suggestions = useMemo(() => {
+    const seen = new Set<string>();
+    const result: string[] = [];
+    for (const t of entries.data ?? []) {
+      const d = t.description?.trim() ?? "";
+      if (!d) continue;
+      const key = d.toLowerCase();
+      if (seen.has(key)) continue;
+      seen.add(key);
+      if (desc && !key.includes(desc.toLowerCase())) continue;
+      result.push(d);
+      if (result.length >= 8) break;
+    }
+    return result;
+  }, [entries.data, desc]);
+
+  useDismiss(suggestOpen && suggestions.length > 0, [descRef, suggestRef], () =>
+    setSuggestOpen(false),
+  );
 
   const canSubmit = projectId !== undefined && activityId !== undefined;
 
@@ -123,7 +177,11 @@ export function TrackerBar() {
   }
   function onTagsChange(next: string[]) {
     setTags(next);
-    if (running && active && next.join("") !== toTagStrings(active.tags).join("")) {
+    if (
+      running &&
+      active &&
+      next.join("") !== toTagStrings(active.tags).join("")
+    ) {
       applyUpdate({ tags: next });
     }
   }
@@ -144,16 +202,22 @@ export function TrackerBar() {
     }
   }
 
-  function entryLabel(p: number | undefined, a: number | undefined, d: string): string {
-    return d.trim() || `${lookup.project(p ?? -1)} · ${lookup.activity(a ?? -1)}`;
+  function entryLabel(
+    p: number | undefined,
+    a: number | undefined,
+    d: string,
+  ): string {
+    return (
+      d.trim() || `${lookup.project(p ?? -1)} · ${lookup.activity(a ?? -1)}`
+    );
   }
 
   async function onDiscard() {
     if (!active) return;
     const ok = await confirm({
-      title: "Discard timer?",
-      message: "The running timer will be deleted without saving.",
-      confirmLabel: "Discard",
+      title: t("tracker.discardTitle"),
+      message: t("tracker.discardMessage"),
+      confirmLabel: t("tracker.discard"),
       danger: true,
     });
     if (ok) remove.mutate(active.id, { onSuccess: focusDesc });
@@ -161,54 +225,118 @@ export function TrackerBar() {
 
   function onStop() {
     if (!active) return;
-    const label = entryLabel(active.project, active.activity, active.description ?? "");
+    const label = entryLabel(
+      active.project,
+      active.activity,
+      active.description ?? "",
+    );
     const elapsed = formatDurationShort(secondsSince(active.begin));
     stop.mutate(active.id, {
       onSuccess: () => {
         focusDesc();
-        if (notifyTimer) window.api.notify("Timer stopped", `${label} — ${elapsed}`);
+        if (notifyTimer)
+          window.api.notify(t("tracker.timerStopped"), `${label} — ${elapsed}`);
       },
     });
   }
 
   function onStart() {
     if (!canSubmit) {
-      setError("Pick a project and activity first.");
+      setError(t("tracker.pickProjectActivity"));
       return;
     }
     const label = entryLabel(projectId, activityId, desc);
+    const pressedMs = Date.now(); // capture exact press moment
     start.mutate(
-      { project: projectId!, activity: activityId!, description: desc.trim(), tags, billable },
-      { onSuccess: () => { if (notifyTimer) window.api.notify("Timer started", label); } },
+      {
+        project: projectId!,
+        activity: activityId!,
+        description: desc.trim(),
+        tags,
+        billable,
+      },
+      {
+        onSuccess: (ts) => {
+          startedAt.current = { id: ts.id, ms: pressedMs }; // store for elapsed calc
+          void markTimerStart(ts.id, pressedMs); // share with the floating window
+          if (notifyTimer) window.api.notify(t("tracker.timerStarted"), label);
+        },
+      },
     );
   }
   function onAdd() {
     if (!canSubmit) {
-      setError("Pick a project and activity first.");
+      setError(t("tracker.pickProjectActivity"));
       return;
     }
     const begin = new Date(range.begin);
     const end = new Date(range.end);
-    if (Number.isNaN(begin.getTime()) || Number.isNaN(end.getTime()) || end <= begin) {
-      setError("Enter a valid start and end time.");
+    if (
+      Number.isNaN(begin.getTime()) ||
+      Number.isNaN(end.getTime()) ||
+      end <= begin
+    ) {
+      setError(t("tracker.invalidTimeRange"));
       return;
     }
     manual.mutate(
-      { project: projectId!, activity: activityId!, description: desc.trim(), tags, billable, begin, end },
-      { onSuccess: () => { setDesc(""); setTags([]); setRange(defaultManualRange()); } },
+      {
+        project: projectId!,
+        activity: activityId!,
+        description: desc.trim(),
+        tags,
+        billable,
+        begin,
+        end,
+      },
+      {
+        onSuccess: () => {
+          setDesc("");
+          setTags([]);
+          setRange(defaultManualRange());
+        },
+      },
     );
   }
 
+  // Prefer the exact press moment (local ref for an instant 0:00, or the
+  // shared persisted value after a restart) over the server-rounded begin.
+  const activeId = active?.id;
+  const pressMs =
+    startedAt.current && startedAt.current.id === activeId
+      ? startedAt.current.ms
+      : persistedStart && persistedStart.id === activeId
+        ? persistedStart.ms
+        : undefined;
   const duration = running
-    ? formatTimer(secondsSince(active!.begin))
+    ? formatTimer(
+        pressMs !== undefined
+          ? Math.max(0, Math.floor((Date.now() - pressMs) / 1000))
+          : secondsSince(active!.begin),
+      )
     : mode === "manual"
-      ? formatTimer(Math.max(0, (new Date(range.end).getTime() - new Date(range.begin).getTime()) / 1000))
+      ? formatTimer(
+          Math.max(
+            0,
+            (new Date(range.end).getTime() - new Date(range.begin).getTime()) /
+              1000,
+          ),
+        )
       : "00:00:00";
 
-  const busy = start.isPending || stop.isPending || manual.isPending || remove.isPending;
+  const busy =
+    start.isPending || stop.isPending || manual.isPending || remove.isPending;
   const submitError =
-    (start.error ?? manual.error ?? update.error ?? stop.error ?? remove.error) instanceof Error
-      ? (start.error ?? manual.error ?? update.error ?? stop.error ?? remove.error)!.message
+    (start.error ??
+      manual.error ??
+      update.error ??
+      stop.error ??
+      remove.error) instanceof Error
+      ? (start.error ??
+          manual.error ??
+          update.error ??
+          stop.error ??
+          remove.error)!.message
       : error;
 
   const segBtn = (m: Mode) =>
@@ -224,18 +352,115 @@ export function TrackerBar() {
         <input
           ref={descRef}
           value={desc}
-          onChange={(e) => setDesc(e.target.value)}
+          onFocus={() => {
+            const r = descRef.current?.getBoundingClientRect();
+            if (r)
+              setSuggestPos({
+                top: r.bottom + 4,
+                left: r.left,
+                width: r.width,
+              });
+            setSuggestOpen(true);
+            setSuggestIdx(-1);
+          }}
+          onChange={(e) => {
+            setDesc(e.target.value);
+            const r = descRef.current?.getBoundingClientRect();
+            if (r)
+              setSuggestPos({
+                top: r.bottom + 4,
+                left: r.left,
+                width: r.width,
+              });
+            setSuggestOpen(true);
+            setSuggestIdx(-1);
+          }}
           onBlur={commitDescription}
           onKeyDown={(e) => {
+            if (suggestOpen && suggestions.length > 0) {
+              if (e.key === "ArrowDown") {
+                e.preventDefault();
+                setSuggestIdx((i) => Math.min(i + 1, suggestions.length - 1));
+                return;
+              }
+              if (e.key === "ArrowUp") {
+                e.preventDefault();
+                setSuggestIdx((i) => Math.max(i - 1, -1));
+                return;
+              }
+              if (e.key === "Enter" && suggestIdx >= 0) {
+                e.preventDefault();
+                const chosen = suggestions[suggestIdx];
+                setDesc(chosen);
+                setSuggestOpen(false);
+                setSuggestIdx(-1);
+                if (running && active) {
+                  update.mutate(
+                    { id: active.id, patch: { description: chosen } },
+                    { onSuccess: flashSaved },
+                  );
+                }
+                return;
+              }
+              if (e.key === "Escape") {
+                setSuggestOpen(false);
+                setSuggestIdx(-1);
+                return;
+              }
+            }
+            // existing Enter logic:
             if (e.key === "Enter") {
               commitDescription();
               if (!running && mode === "timer") onStart();
             }
           }}
-          placeholder="What are you working on?"
+          placeholder={t("tracker.placeholder")}
           className="relative z-10 min-w-0 flex-1 cursor-text bg-transparent text-[15px] font-medium text-gray-800
             placeholder-gray-400 focus:outline-none dark:text-gray-100 dark:placeholder-gray-500"
         />
+
+        {suggestOpen &&
+          suggestions.length > 0 &&
+          createPortal(
+            <div
+              ref={suggestRef}
+              style={{
+                position: "fixed",
+                top: suggestPos.top,
+                left: suggestPos.left,
+                width: suggestPos.width,
+                zIndex: 50,
+              }}
+              className="anim-dropdown overflow-hidden rounded-lg border border-gray-200 bg-white shadow-xl dark:border-gray-700 dark:bg-gray-800"
+            >
+              {suggestions.map((s, i) => (
+                <button
+                  key={s}
+                  type="button"
+                  onMouseDown={(e) => {
+                    e.preventDefault(); // prevent blur before click
+                    setDesc(s);
+                    setSuggestOpen(false);
+                    setSuggestIdx(-1);
+                    if (running && active) {
+                      update.mutate(
+                        { id: active.id, patch: { description: s } },
+                        { onSuccess: flashSaved },
+                      );
+                    }
+                  }}
+                  className={`flex w-full items-center px-3 py-2 text-left text-sm transition ${
+                    i === suggestIdx
+                      ? "bg-accent-50 text-accent-700 dark:bg-accent-950/30 dark:text-accent-300"
+                      : "text-gray-700 hover:bg-gray-50 dark:text-gray-200 dark:hover:bg-gray-700"
+                  }`}
+                >
+                  <span className="truncate">{s}</span>
+                </button>
+              ))}
+            </div>,
+            document.body,
+          )}
 
         <div className="flex shrink-0 items-center gap-2.5">
           {running && (update.isPending || saved) && (
@@ -247,13 +472,22 @@ export function TrackerBar() {
               }`}
             >
               {update.isPending ? (
-                "Saving…"
+                t("common.saving")
               ) : (
                 <>
-                  <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round">
+                  <svg
+                    width="13"
+                    height="13"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    strokeWidth="3"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                  >
                     <path d="M20 6L9 17l-5-5" />
                   </svg>
-                  Saved
+                  {t("common.saved")}
                 </>
               )}
             </span>
@@ -271,7 +505,7 @@ export function TrackerBar() {
                   if (e.key === "Enter") commitStartTime();
                   else if (e.key === "Escape") setEditingTime(false);
                 }}
-                title="Set the start time"
+                title={t("tracker.setStartTime")}
                 className="rounded-md border border-accent-400 bg-white px-1.5 py-1 font-mono text-sm
                   tabular-nums text-gray-800 focus:outline-none dark:bg-gray-700 dark:text-gray-100 dark:[color-scheme:dark]"
               />
@@ -279,7 +513,7 @@ export function TrackerBar() {
               <button
                 type="button"
                 onClick={startEditTime}
-                title="Click to change the start time"
+                title={t("tracker.changeStartTime")}
                 className="flex h-10 items-center rounded-md px-1.5 transition hover:bg-gray-100 dark:hover:bg-gray-700"
               >
                 <AnimatedNumber
@@ -300,20 +534,29 @@ export function TrackerBar() {
             <>
               <button
                 type="button"
-                title="Discard (delete without saving)"
+                title={t("tracker.discardTooltip")}
                 onClick={onDiscard}
                 disabled={busy}
                 className="flex h-10 w-10 items-center justify-center rounded-full text-gray-400 transition
                   hover:bg-red-50 hover:text-red-600 active:scale-95 disabled:opacity-50
                   dark:hover:bg-red-950/40 dark:hover:text-red-400"
               >
-                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                <svg
+                  width="16"
+                  height="16"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth="2"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                >
                   <path d="M3 6h18M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2m2 0v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6" />
                 </svg>
               </button>
               <button
                 type="button"
-                title="Stop"
+                title={t("tracker.stop")}
                 onClick={onStop}
                 disabled={busy}
                 className="flex h-10 w-10 items-center justify-center rounded-full bg-red-500 text-white shadow-sm transition hover:bg-red-600 active:scale-95 disabled:opacity-50"
@@ -328,17 +571,22 @@ export function TrackerBar() {
               disabled={busy}
               className="rounded-lg bg-accent-500 px-4 py-2.5 text-sm font-semibold text-white shadow-sm transition hover:bg-accent-600 active:scale-95 disabled:opacity-50"
             >
-              Add
+              {t("tracker.add")}
             </button>
           ) : (
             <button
               type="button"
-              title="Start"
+              title={t("tracker.start")}
               onClick={onStart}
               disabled={busy}
               className="flex h-10 w-10 items-center justify-center rounded-full bg-accent-500 text-white shadow-sm transition hover:bg-accent-600 active:scale-95 disabled:opacity-50"
             >
-              <svg width="15" height="15" viewBox="0 0 24 24" fill="currentColor">
+              <svg
+                width="15"
+                height="15"
+                viewBox="0 0 24 24"
+                fill="currentColor"
+              >
                 <path d="M8 5v14l11-7z" />
               </svg>
             </button>
@@ -357,7 +605,7 @@ export function TrackerBar() {
                   onProjectChange(id);
                   setEditField("activity");
                 }}
-                placeholder="Project"
+                placeholder={t("tracker.projectPlaceholder")}
                 loading={projects.loading}
                 dot
                 fit
@@ -368,14 +616,19 @@ export function TrackerBar() {
               <button
                 type="button"
                 onClick={() => setEditField("project")}
-                title="Change project"
+                title={t("tracker.changeProject")}
                 className="flex items-center gap-1.5 rounded-md px-1.5 py-1 transition hover:bg-gray-100 dark:hover:bg-gray-700"
               >
                 <span
                   className="h-2.5 w-2.5 shrink-0 rounded-full"
-                  style={{ backgroundColor: lookup.color(projectId ?? active!.project) }}
+                  style={{
+                    backgroundColor: lookup.color(projectId ?? active!.project),
+                  }}
                 />
-                <span className="font-semibold" style={{ color: lookup.color(projectId ?? active!.project) }}>
+                <span
+                  className="font-semibold"
+                  style={{ color: lookup.color(projectId ?? active!.project) }}
+                >
                   {lookup.project(projectId ?? active!.project)}
                 </span>
               </button>
@@ -386,7 +639,7 @@ export function TrackerBar() {
                 options={activities.options}
                 value={activityId}
                 onChange={onActivityChange}
-                placeholder="Activity"
+                placeholder={t("tracker.activityPlaceholder")}
                 loading={activities.loading}
                 dot
                 fit
@@ -397,7 +650,7 @@ export function TrackerBar() {
               <button
                 type="button"
                 onClick={() => setEditField("activity")}
-                title="Change activity"
+                title={t("tracker.changeActivity")}
                 className="rounded-md px-1.5 py-1 text-gray-600 transition hover:bg-gray-100 dark:text-gray-300 dark:hover:bg-gray-700"
               >
                 {lookup.activity(activityId ?? active!.activity)}
@@ -410,7 +663,7 @@ export function TrackerBar() {
               options={projects.options}
               value={projectId}
               onChange={onProjectChange}
-              placeholder="Project"
+              placeholder={t("tracker.projectPlaceholder")}
               loading={projects.loading}
               dot
               fit
@@ -419,7 +672,7 @@ export function TrackerBar() {
               options={activities.options}
               value={activityId}
               onChange={onActivityChange}
-              placeholder="Activity"
+              placeholder={t("tracker.activityPlaceholder")}
               loading={activities.loading}
               dot
               fit
@@ -440,7 +693,7 @@ export function TrackerBar() {
         {showBillable && (
           <button
             type="button"
-            title={billable ? "Billable" : "Not billable"}
+            title={billable ? t("tracker.billable") : t("tracker.notBillable")}
             onClick={toggleBillable}
             className={`flex h-8 w-8 shrink-0 items-center justify-center rounded-lg border text-sm font-bold transition ${
               billable
@@ -455,8 +708,15 @@ export function TrackerBar() {
         {!running && (
           <div className="flex overflow-hidden rounded-lg border border-gray-300 text-xs dark:border-gray-600">
             {(["timer", "manual"] as Mode[]).map((m) => (
-              <button key={m} type="button" onClick={() => setMode(m)} className={segBtn(m)}>
-                {m}
+              <button
+                key={m}
+                type="button"
+                onClick={() => setMode(m)}
+                className={segBtn(m)}
+              >
+                {m === "timer"
+                  ? t("tracker.modeTimer")
+                  : t("tracker.modeManual")}
               </button>
             ))}
           </div>
@@ -468,7 +728,7 @@ export function TrackerBar() {
               <DateTimePicker
                 value={range.begin}
                 onChange={(v) => setRange((r) => ({ ...r, begin: v }))}
-                placeholder="Start"
+                placeholder={t("editModal.startTime")}
               />
             </div>
             <span>→</span>
@@ -476,14 +736,16 @@ export function TrackerBar() {
               <DateTimePicker
                 value={range.end}
                 onChange={(v) => setRange((r) => ({ ...r, end: v }))}
-                placeholder="End"
+                placeholder={t("editModal.endTime")}
               />
             </div>
           </div>
         )}
       </div>
 
-      {submitError && <p className="mt-2 text-xs text-red-500">{submitError}</p>}
+      {submitError && (
+        <p className="mt-2 text-xs text-red-500">{submitError}</p>
+      )}
     </div>
   );
 }

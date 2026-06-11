@@ -1,6 +1,6 @@
-import { test as base, expect, _electron as electron } from "@playwright/test";
-import type { ElectronApplication, Page } from "@playwright/test";
 import { join } from "node:path";
+import type { ElectronApplication, Page } from "@playwright/test";
+import { test as base, _electron as electron, expect } from "@playwright/test";
 
 export type ElectronFixtures = {
   electronApp: ElectronApplication;
@@ -8,6 +8,7 @@ export type ElectronFixtures = {
 };
 
 export const test = base.extend<ElectronFixtures>({
+  // biome-ignore lint/correctness/noEmptyPattern: Playwright fixtures require destructuring
   electronApp: async ({}, use) => {
     const app = await electron.launch({
       args: [join(process.cwd(), "out", "main", "index.js")],
@@ -72,15 +73,25 @@ export async function mockAuthenticatedState(
       activeOrgId: "test-org",
     };
 
-    const replace = (channel: string, handler: (...args: unknown[]) => unknown) => {
-      try { ipcMain.removeHandler(channel); } catch { /* not registered */ }
+    const replace = (
+      channel: string,
+      handler: (...args: unknown[]) => unknown,
+    ) => {
+      try {
+        ipcMain.removeHandler(channel);
+      } catch {
+        /* not registered */
+      }
       ipcMain.handle(channel, handler);
     };
 
     replace("org:list", () => ORG_LIST);
     replace("org:setSetting", () => ORG_LIST);
     replace("org:setActive", () => ORG_LIST);
-    replace("prefs:get", (_e: unknown, _key: unknown, fallback: unknown) => fallback);
+    replace(
+      "prefs:get",
+      (_e: unknown, _key: unknown, fallback: unknown) => fallback,
+    );
     replace("prefs:set", () => undefined);
     replace("autostart:get", () => false);
 
@@ -124,13 +135,23 @@ export async function mockUnconfiguredState(
   page: Page,
 ) {
   await electronApp.evaluate(({ ipcMain }) => {
-    const replace = (channel: string, handler: (...args: unknown[]) => unknown) => {
-      try { ipcMain.removeHandler(channel); } catch { /* not registered */ }
+    const replace = (
+      channel: string,
+      handler: (...args: unknown[]) => unknown,
+    ) => {
+      try {
+        ipcMain.removeHandler(channel);
+      } catch {
+        /* not registered */
+      }
       ipcMain.handle(channel, handler);
     };
 
     replace("org:list", () => ({ organisations: [], activeOrgId: null }));
-    replace("prefs:get", (_e: unknown, _key: unknown, fallback: unknown) => fallback);
+    replace(
+      "prefs:get",
+      (_e: unknown, _key: unknown, fallback: unknown) => fallback,
+    );
     replace("prefs:set", () => undefined);
   });
 

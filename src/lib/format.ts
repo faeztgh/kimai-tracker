@@ -41,11 +41,34 @@ export function formatTimer(totalSeconds: number): string {
   return `${pad(Math.floor(s / 3600))}:${pad(Math.floor((s % 3600) / 60))}:${pad(s % 60)}`;
 }
 
+export function parseDuration(input: string): number | null {
+  const s = input.trim();
+  // H:MM:SS or H:MM
+  const hms = /^(\d+):(\d{1,2})(?::(\d{1,2}))?$/.exec(s);
+  if (hms) {
+    const h = parseInt(hms[1], 10);
+    const m = parseInt(hms[2], 10);
+    const sec = hms[3] ? parseInt(hms[3], 10) : 0;
+    if (m >= 60 || sec >= 60) return null;
+    return h * 3600 + m * 60 + sec;
+  }
+  // "1.5h" or "1.5 h"
+  const hDecimal = /^(\d+(?:\.\d+)?)\s*h$/i.exec(s);
+  if (hDecimal) return Math.round(parseFloat(hDecimal[1]) * 3600);
+  // "90m" or "90 min"
+  const mins = /^(\d+(?:\.\d+)?)\s*m(?:in)?$/i.exec(s);
+  if (mins) return Math.round(parseFloat(mins[1]) * 60);
+  // plain minutes (a bare number like "90")
+  const plain = /^(\d+)$/.exec(s);
+  if (plain) return parseInt(plain[1], 10) * 60;
+  return null;
+}
+
 export function formatDurationShort(totalSeconds: number): string {
   const s = Math.max(0, Math.floor(totalSeconds));
   const h = Math.floor(s / 3600);
   const m = Math.floor((s % 3600) / 60);
-  if (h > 0) return `${h}:${pad(m)} h`;
+  if (h > 0) return `${h}:${pad(m)}h`;
   return `${m} min`;
 }
 
@@ -59,11 +82,10 @@ export function dayKey(iso: string): string {
   return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}`;
 }
 
-const WEEKDAYS = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
-const MONTHS = [
-  "Jan", "Feb", "Mar", "Apr", "May", "Jun",
-  "Jul", "Aug", "Sep", "Oct", "Nov", "Dec",
-];
+let formatLang = "en";
+export function setFormatLang(lng: string): void {
+  formatLang = lng;
+}
 
 export function dayLabel(isoOrKey: string): string {
   const d = new Date(isoOrKey.length <= 10 ? `${isoOrKey}T00:00:00` : isoOrKey);
@@ -72,9 +94,32 @@ export function dayLabel(isoOrKey: string): string {
   const that = new Date(d);
   that.setHours(0, 0, 0, 0);
   const diffDays = Math.round((today.getTime() - that.getTime()) / 86_400_000);
-  if (diffDays === 0) return "Today";
-  if (diffDays === 1) return "Yesterday";
-  return `${WEEKDAYS[that.getDay()]}, ${MONTHS[that.getMonth()]} ${that.getDate()}`;
+  if (diffDays === 0) return "__TODAY__";
+  if (diffDays === 1) return "__YESTERDAY__";
+  try {
+    return new Intl.DateTimeFormat(formatLang, {
+      weekday: "short",
+      month: "short",
+      day: "numeric",
+    }).format(that);
+  } catch {
+    const WEEKDAYS = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
+    const MONTHS = [
+      "Jan",
+      "Feb",
+      "Mar",
+      "Apr",
+      "May",
+      "Jun",
+      "Jul",
+      "Aug",
+      "Sep",
+      "Oct",
+      "Nov",
+      "Dec",
+    ];
+    return `${WEEKDAYS[that.getDay()]}, ${MONTHS[that.getMonth()]} ${that.getDate()}`;
+  }
 }
 
 export function recentRangeKimai(days: number): { begin: string; end: string } {
@@ -134,7 +179,12 @@ export function dayKeysBetween(begin: Date, end: Date): string[] {
 }
 
 export function weekdayShort(key: string): string {
-  return WEEKDAYS[new Date(`${key}T00:00:00`).getDay()];
+  const d = new Date(`${key}T00:00:00`);
+  try {
+    return new Intl.DateTimeFormat(formatLang, { weekday: "short" }).format(d);
+  } catch {
+    return ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"][d.getDay()];
+  }
 }
 
 export function monthDayShort(key: string): string {
@@ -142,7 +192,28 @@ export function monthDayShort(key: string): string {
 }
 
 export function formatDateShort(d: Date): string {
-  return `${MONTHS[d.getMonth()]} ${d.getDate()}`;
+  try {
+    return new Intl.DateTimeFormat(formatLang, {
+      month: "short",
+      day: "numeric",
+    }).format(d);
+  } catch {
+    const MONTHS = [
+      "Jan",
+      "Feb",
+      "Mar",
+      "Apr",
+      "May",
+      "Jun",
+      "Jul",
+      "Aug",
+      "Sep",
+      "Oct",
+      "Nov",
+      "Dec",
+    ];
+    return `${MONTHS[d.getMonth()]} ${d.getDate()}`;
+  }
 }
 
 export function incomeOf(seconds: number, ratePerHour: number): number {

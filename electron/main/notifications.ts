@@ -29,7 +29,10 @@ function notifyLongRunning(hours: number): void {
   );
 }
 
-export function updateReminder(running: boolean, beginIso: string | null): void {
+export function updateReminder(
+  running: boolean,
+  beginIso: string | null,
+): void {
   if (!running || !beginIso) {
     clearScheduled();
     firedFor = null;

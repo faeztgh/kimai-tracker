@@ -1,8 +1,17 @@
 import { useMemo } from "react";
 import type { PickerOption } from "../components/Picker";
-import { colorForId, useActivities, useCustomers, useProjects } from "./useEntities";
+import {
+  colorForId,
+  useActivities,
+  useAllActivities,
+  useCustomers,
+  useProjects,
+} from "./useEntities";
 
-export function useProjectOptions(): { options: PickerOption[]; loading: boolean } {
+export function useProjectOptions(): {
+  options: PickerOption[];
+  loading: boolean;
+} {
   const customers = useCustomers();
   const projects = useProjects();
 
@@ -23,17 +32,19 @@ export function useActivityOptions(projectId?: number): {
   options: PickerOption[];
   loading: boolean;
 } {
-  const activities = useActivities(projectId);
+  const all = useAllActivities();
+  const filtered = useActivities(projectId);
+  const source = projectId !== undefined ? filtered : all;
 
   const options = useMemo<PickerOption[]>(
     () =>
-      (activities.data ?? []).map((a) => ({
+      (source.data ?? []).map((a) => ({
         id: a.id,
         label: a.name,
         color: colorForId(a.id, a.color),
       })),
-    [activities.data],
+    [source.data],
   );
 
-  return { options, loading: activities.isLoading };
+  return { options, loading: source.isLoading };
 }

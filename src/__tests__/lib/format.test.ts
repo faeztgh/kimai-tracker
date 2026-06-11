@@ -1,29 +1,29 @@
-import { describe, it, expect, vi, afterEach, beforeEach } from "vitest";
+import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
+import type { KimaiTimesheet } from "../../api/types";
 import {
-  toKimaiLocal,
-  toDatetimeLocalInput,
-  secondsSince,
-  durationOf,
-  formatElapsed,
-  formatTimer,
-  formatDurationShort,
-  formatClock,
   dayKey,
+  dayKeysBetween,
   dayLabel,
+  durationOf,
+  formatClock,
+  formatDurationShort,
+  formatElapsed,
+  formatMoney,
+  formatTimer,
+  incomeOf,
   isToday,
   keyOfDate,
-  dayKeysBetween,
-  weekdayShort,
   monthDayShort,
-  incomeOf,
-  formatMoney,
-  toTagStrings,
-  setWeekStartDay,
-  startOfWeek,
-  startOfMonth,
   recentRangeKimai,
+  secondsSince,
+  setWeekStartDay,
+  startOfMonth,
+  startOfWeek,
+  toDatetimeLocalInput,
+  toKimaiLocal,
+  toTagStrings,
+  weekdayShort,
 } from "../../lib/format";
-import type { KimaiTimesheet } from "../../api/types";
 
 const FIXED_NOW = new Date(2024, 5, 5, 10, 0, 0); // Wed Jun 5 2024 10:00:00 local
 
@@ -241,14 +241,14 @@ describe("dayLabel", () => {
   beforeEach(() => vi.useFakeTimers());
   afterEach(() => vi.useRealTimers());
 
-  it('returns "Today" for the current day', () => {
+  it('returns the "today" sentinel for the current day', () => {
     vi.setSystemTime(new Date(2024, 5, 5, 10, 0, 0));
-    expect(dayLabel("2024-06-05")).toBe("Today");
+    expect(dayLabel("2024-06-05")).toBe("__TODAY__");
   });
 
-  it('returns "Yesterday" for the previous day', () => {
+  it('returns the "yesterday" sentinel for the previous day', () => {
     vi.setSystemTime(new Date(2024, 5, 5, 10, 0, 0));
-    expect(dayLabel("2024-06-04")).toBe("Yesterday");
+    expect(dayLabel("2024-06-04")).toBe("__YESTERDAY__");
   });
 
   it("returns weekday + date for older dates", () => {
@@ -259,7 +259,7 @@ describe("dayLabel", () => {
 
   it("accepts ISO strings as well as date keys", () => {
     vi.setSystemTime(new Date(2024, 5, 5, 10, 0, 0));
-    expect(dayLabel("2024-06-05T14:30:00")).toBe("Today");
+    expect(dayLabel("2024-06-05T14:30:00")).toBe("__TODAY__");
   });
 });
 
