@@ -1,17 +1,26 @@
-# https://lefthook.dev/configuration/
+commit-msg:
+  commands:
+    commitlint:
+      run: pnpm commitlint --edit {1}
+
 pre-commit:
-  jobs:
-    - name: biome
-      glob: "*.{js,jsx,ts,tsx,json,jsonc,css}"
-      run: pnpm exec biome check --write --no-errors-on-unmatched {staged_files}
+  parallel: false
+  commands:
+    format:
+      priority: 1
+      glob: "*.{js,jsx,ts,tsx,json,css}"
+      run: pnpm biome format --write --no-errors-on-unmatched {staged_files}
+      stage_fixed: true
+    biome:
+      priority: 2
+      glob: "*.{js,jsx,ts,tsx,json,css}"
+      run: pnpm biome check --write --no-errors-on-unmatched {staged_files}
       stage_fixed: true
 
-commit-msg:
-  jobs:
-    - name: commitlint
-      run: pnpm exec commitlint --edit {1}
-
 pre-push:
-  jobs:
-    - name: typecheck
+  parallel: false
+  commands:
+    typecheck:
       run: pnpm typecheck
+    test:
+      run: pnpm test
