@@ -124,6 +124,10 @@
     "themeSystem": "시스템",
     "themeLight": "라이트",
     "themeDark": "다크",
+    "fontSize": "글꼴 크기",
+    "fontSizeHint": "전체 인터페이스 크기를 조정합니다.",
+    "fontFamily": "글꼴",
+    "fontFamilyHint": "모든 창에 적용됩니다.",
     "accentColor": "강조 색상",
     "animatedDigits": "애니메이션 숫자",
     "animatedDigitsHint": "변경 시 타이머 및 수입 숫자 애니메이션",
@@ -252,6 +256,20 @@
   },
   "app": {
     "pinFloating": "플로팅 창 고정"
+  },
+  "fontSizes": {
+    "small": "작게",
+    "default": "기본",
+    "large": "크게",
+    "xlarge": "매우 크게"
+  },
+  "fontFamilies": {
+    "system": "시스템",
+    "inter": "Inter",
+    "segoe": "Segoe UI",
+    "roboto": "Roboto",
+    "serif": "세리프",
+    "mono": "고정폭"
   },
   "accents": {
     "blue": "파랑",

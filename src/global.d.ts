@@ -90,7 +90,8 @@ export interface KimaiApi {
       | "org:changed"
       | "hotkey:toggle-timer"
       | "idle:detected"
-      | "language:changed",
+      | "language:changed"
+      | "appearance:changed",
     listener: (...args: unknown[]) => void,
   ): () => void;
 }

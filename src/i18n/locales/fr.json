@@ -124,6 +124,10 @@
     "themeSystem": "système",
     "themeLight": "clair",
     "themeDark": "sombre",
+    "fontSize": "Taille de police",
+    "fontSizeHint": "Met à l'échelle toute l'interface.",
+    "fontFamily": "Police",
+    "fontFamilyHint": "S'applique à toutes les fenêtres.",
     "accentColor": "Couleur d'accent",
     "animatedDigits": "Chiffres animés",
     "animatedDigitsHint": "Animer les chiffres du minuteur et des revenus lors des changements",
@@ -252,6 +256,20 @@
   },
   "app": {
     "pinFloating": "Épingler la fenêtre flottante"
+  },
+  "fontSizes": {
+    "small": "Petite",
+    "default": "Par défaut",
+    "large": "Grande",
+    "xlarge": "Très grande"
+  },
+  "fontFamilies": {
+    "system": "Système",
+    "inter": "Inter",
+    "segoe": "Segoe UI",
+    "roboto": "Roboto",
+    "serif": "Serif",
+    "mono": "Monospace"
   },
   "accents": {
     "blue": "Bleu",

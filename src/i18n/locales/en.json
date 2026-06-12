@@ -128,6 +128,10 @@
     "themeSystem": "system",
     "themeLight": "light",
     "themeDark": "dark",
+    "fontSize": "Font size",
+    "fontSizeHint": "Scales the entire interface.",
+    "fontFamily": "Font family",
+    "fontFamilyHint": "Applies across all windows.",
     "accentColor": "Accent color",
     "animatedDigits": "Animated digits",
     "animatedDigitsHint": "Roll timer & income numbers when they change",
@@ -222,6 +226,20 @@
     "message": "You were idle since {{time}}. Discard that idle time from the running timer, or keep it?",
     "discard": "Discard idle",
     "keep": "Keep"
+  },
+  "fontSizes": {
+    "small": "Small",
+    "default": "Default",
+    "large": "Large",
+    "xlarge": "Extra large"
+  },
+  "fontFamilies": {
+    "system": "System default",
+    "inter": "Inter",
+    "segoe": "Segoe UI",
+    "roboto": "Roboto",
+    "serif": "Serif",
+    "mono": "Monospace"
   },
   "accents": {
     "blue": "Blue",

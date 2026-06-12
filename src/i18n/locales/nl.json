@@ -124,6 +124,10 @@
     "themeSystem": "systeem",
     "themeLight": "licht",
     "themeDark": "donker",
+    "fontSize": "Lettergrootte",
+    "fontSizeHint": "Schaalt de hele interface.",
+    "fontFamily": "Lettertype",
+    "fontFamilyHint": "Geldt voor alle vensters.",
     "accentColor": "Accentkleur",
     "animatedDigits": "Geanimeerde cijfers",
     "animatedDigitsHint": "Timer- en inkomenscijfers animeren bij wijziging",
@@ -252,6 +256,20 @@
   },
   "app": {
     "pinFloating": "Zwevend venster vastzetten"
+  },
+  "fontSizes": {
+    "small": "Klein",
+    "default": "Standaard",
+    "large": "Groot",
+    "xlarge": "Extra groot"
+  },
+  "fontFamilies": {
+    "system": "Systeem",
+    "inter": "Inter",
+    "segoe": "Segoe UI",
+    "roboto": "Roboto",
+    "serif": "Serif",
+    "mono": "Monospace"
   },
   "accents": {
     "blue": "Blauw",

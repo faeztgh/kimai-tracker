@@ -124,6 +124,10 @@
     "themeSystem": "systém",
     "themeLight": "světlý",
     "themeDark": "tmavý",
+    "fontSize": "Velikost písma",
+    "fontSizeHint": "Mění velikost celého rozhraní.",
+    "fontFamily": "Rodina písma",
+    "fontFamilyHint": "Platí pro všechna okna.",
     "accentColor": "Barva zvýraznění",
     "animatedDigits": "Animované číslice",
     "animatedDigitsHint": "Animovat čísla časovače a příjmu při změně",
@@ -252,6 +256,20 @@
   },
   "app": {
     "pinFloating": "Připnout plovoucí okno"
+  },
+  "fontSizes": {
+    "small": "Malé",
+    "default": "Výchozí",
+    "large": "Velké",
+    "xlarge": "Velmi velké"
+  },
+  "fontFamilies": {
+    "system": "Systémové",
+    "inter": "Inter",
+    "segoe": "Segoe UI",
+    "roboto": "Roboto",
+    "serif": "Patkové",
+    "mono": "Monospace"
   },
   "accents": {
     "blue": "Modrá",

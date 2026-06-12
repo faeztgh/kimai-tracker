@@ -124,6 +124,10 @@
     "themeSystem": "sistema",
     "themeLight": "claro",
     "themeDark": "oscuro",
+    "fontSize": "Tamaño de fuente",
+    "fontSizeHint": "Escala toda la interfaz.",
+    "fontFamily": "Familia de fuente",
+    "fontFamilyHint": "Se aplica a todas las ventanas.",
     "accentColor": "Color de acento",
     "animatedDigits": "Dígitos animados",
     "animatedDigitsHint": "Animar los números del temporizador e ingresos al cambiar",
@@ -252,6 +256,20 @@
   },
   "app": {
     "pinFloating": "Fijar ventana flotante"
+  },
+  "fontSizes": {
+    "small": "Pequeño",
+    "default": "Predeterminado",
+    "large": "Grande",
+    "xlarge": "Extra grande"
+  },
+  "fontFamilies": {
+    "system": "Sistema",
+    "inter": "Inter",
+    "segoe": "Segoe UI",
+    "roboto": "Roboto",
+    "serif": "Serif",
+    "mono": "Monoespaciada"
   },
   "accents": {
     "blue": "Azul",

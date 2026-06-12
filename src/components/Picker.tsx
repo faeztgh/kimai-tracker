@@ -8,6 +8,7 @@ export interface PickerOption {
   label: string;
   color?: string;
   group?: string;
+  fontFamily?: string;
 }
 
 interface Props {
@@ -122,6 +123,11 @@ export function Picker({
               ? "text-gray-800 dark:text-gray-100"
               : "text-gray-400 dark:text-gray-500"
           }`}
+          style={
+            selected?.fontFamily
+              ? { fontFamily: selected.fontFamily }
+              : undefined
+          }
         >
           {loading ? "Loading…" : (selected?.label ?? placeholder)}
         </span>
@@ -212,7 +218,14 @@ export function Picker({
                         style={{ backgroundColor: o.color ?? "#9ca3af" }}
                       />
                     )}
-                    <span className="truncate">{o.label}</span>
+                    <span
+                      className="truncate"
+                      style={
+                        o.fontFamily ? { fontFamily: o.fontFamily } : undefined
+                      }
+                    >
+                      {o.label}
+                    </span>
                   </button>
                 ))}
               </div>

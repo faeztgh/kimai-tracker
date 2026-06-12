@@ -124,6 +124,10 @@
     "themeSystem": "النظام",
     "themeLight": "فاتح",
     "themeDark": "داكن",
+    "fontSize": "حجم الخط",
+    "fontSizeHint": "يغيّر حجم الواجهة بالكامل.",
+    "fontFamily": "نوع الخط",
+    "fontFamilyHint": "يُطبَّق على جميع النوافذ.",
     "accentColor": "لون التمييز",
     "animatedDigits": "أرقام متحركة",
     "animatedDigitsHint": "تحريك أرقام المؤقت والدخل عند التغيير",
@@ -252,6 +256,20 @@
   },
   "app": {
     "pinFloating": "تثبيت النافذة العائمة"
+  },
+  "fontSizes": {
+    "small": "صغير",
+    "default": "افتراضي",
+    "large": "كبير",
+    "xlarge": "كبير جداً"
+  },
+  "fontFamilies": {
+    "system": "النظام",
+    "inter": "Inter",
+    "segoe": "Segoe UI",
+    "roboto": "Roboto",
+    "serif": "Serif",
+    "mono": "Monospace"
   },
   "accents": {
     "blue": "أزرق",

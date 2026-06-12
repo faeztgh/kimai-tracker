@@ -124,6 +124,10 @@
     "themeSystem": "系统",
     "themeLight": "浅色",
     "themeDark": "深色",
+    "fontSize": "字体大小",
+    "fontSizeHint": "缩放整个界面。",
+    "fontFamily": "字体",
+    "fontFamilyHint": "应用于所有窗口。",
     "accentColor": "强调色",
     "animatedDigits": "数字动画",
     "animatedDigitsHint": "数字变化时滚动计时器和收入数字",
@@ -252,6 +256,20 @@
   },
   "app": {
     "pinFloating": "固定浮动窗口"
+  },
+  "fontSizes": {
+    "small": "小",
+    "default": "默认",
+    "large": "大",
+    "xlarge": "特大"
+  },
+  "fontFamilies": {
+    "system": "系统默认",
+    "inter": "Inter",
+    "segoe": "Segoe UI",
+    "roboto": "Roboto",
+    "serif": "衬线",
+    "mono": "等宽"
   },
   "accents": {
     "blue": "蓝色",

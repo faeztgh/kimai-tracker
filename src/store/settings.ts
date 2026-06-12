@@ -9,7 +9,11 @@ import i18n, { applyDirection } from "../i18n";
 import { setFormatLang, setWeekStartDay } from "../lib/format";
 import {
   type AccentName,
+  type FontFamilyId,
+  type FontSize,
   setAccent,
+  setFontFamily,
+  setFontSize,
   setTheme,
   type ThemeMode,
 } from "../lib/theme";
@@ -41,6 +45,8 @@ interface SettingsState {
   activeOrgId: string | null;
   themeMode: ThemeMode;
   language: string;
+  fontSize: FontSize;
+  fontFamily: FontFamilyId;
 
   pollSeconds: number;
   accent: AccentName;
@@ -68,6 +74,9 @@ interface SettingsState {
 
   setThemeMode: (mode: ThemeMode) => Promise<void>;
   setLanguage: (lang: string) => Promise<void>;
+  setFontSizePref: (size: FontSize) => Promise<void>;
+  setFontFamilyPref: (family: FontFamilyId) => Promise<void>;
+  applyAppearance: () => Promise<void>;
   setPollSeconds: (n: number) => Promise<void>;
   setAccent: (accent: AccentName) => Promise<void>;
   setHourlyRate: (n: number) => Promise<void>;
@@ -154,6 +163,8 @@ export const useSettings = create<SettingsState>((set, get) => {
     activeOrgId: null,
     themeMode: "system",
     language: "en",
+    fontSize: "default",
+    fontFamily: "inter",
     ...flatten(DEFAULTS),
 
     load: async () => {
@@ -163,11 +174,35 @@ export const useSettings = create<SettingsState>((set, get) => {
         "system",
       );
       const lang = await window.api.prefs.get<string>("language", "en");
+      const fontSize = await window.api.prefs.get<FontSize>(
+        "fontSize",
+        "default",
+      );
+      const fontFamily = await window.api.prefs.get<FontFamilyId>(
+        "fontFamily",
+        "inter",
+      );
       if (lang !== i18n.language) await i18n.changeLanguage(lang);
       applyDirection(lang);
       setFormatLang(lang);
-      set({ language: lang });
+      setFontSize(fontSize);
+      setFontFamily(fontFamily);
+      set({ language: lang, fontSize, fontFamily });
       applyList(list.organisations, list.activeOrgId, themeMode);
+    },
+
+    applyAppearance: async () => {
+      const fontSize = await window.api.prefs.get<FontSize>(
+        "fontSize",
+        "default",
+      );
+      const fontFamily = await window.api.prefs.get<FontFamilyId>(
+        "fontFamily",
+        "inter",
+      );
+      setFontSize(fontSize);
+      setFontFamily(fontFamily);
+      set({ fontSize, fontFamily });
     },
 
     addOrg: async (input) => {
@@ -203,6 +238,18 @@ export const useSettings = create<SettingsState>((set, get) => {
       // Persists the pref AND rebuilds the (main-process) tray menu.
       await window.api.setLanguage(lang);
       set({ language: lang });
+    },
+
+    setFontSizePref: async (size) => {
+      await window.api.prefs.set("fontSize", size);
+      setFontSize(size);
+      set({ fontSize: size });
+    },
+
+    setFontFamilyPref: async (family) => {
+      await window.api.prefs.set("fontFamily", family);
+      setFontFamily(family);
+      set({ fontFamily: family });
     },
 
     setPollSeconds: async (n) => {

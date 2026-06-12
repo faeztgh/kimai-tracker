@@ -124,6 +124,10 @@
     "themeSystem": "システム",
     "themeLight": "ライト",
     "themeDark": "ダーク",
+    "fontSize": "フォントサイズ",
+    "fontSizeHint": "インターフェース全体のサイズを変更します。",
+    "fontFamily": "フォント",
+    "fontFamilyHint": "すべてのウィンドウに適用されます。",
     "accentColor": "アクセントカラー",
     "animatedDigits": "アニメーション数字",
     "animatedDigitsHint": "変更時にタイマーと収入の数字をアニメーション",
@@ -252,6 +256,20 @@
   },
   "app": {
     "pinFloating": "フローティングウィンドウを固定"
+  },
+  "fontSizes": {
+    "small": "小",
+    "default": "標準",
+    "large": "大",
+    "xlarge": "特大"
+  },
+  "fontFamilies": {
+    "system": "システム",
+    "inter": "Inter",
+    "segoe": "Segoe UI",
+    "roboto": "Roboto",
+    "serif": "セリフ",
+    "mono": "等幅"
   },
   "accents": {
     "blue": "ブルー",

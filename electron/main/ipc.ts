@@ -106,6 +106,9 @@ export function registerIpc(): void {
   ipcMain.handle("prefs:set", (_e, key: string, value: unknown) => {
     if (typeof key !== "string" || PROTECTED_PREFS.has(key)) return;
     prefs.set(key, value);
+    if (key === "fontSize" || key === "fontFamily") {
+      broadcast("appearance:changed");
+    }
   });
 
   ipcMain.handle("pdf:export", (_e, html: string, suggestedName: string) =>

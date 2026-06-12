@@ -35,6 +35,12 @@ export default function Floating() {
     });
   }, []);
 
+  useEffect(() => {
+    return window.api.on("appearance:changed", () => {
+      void useSettings.getState().applyAppearance();
+    });
+  }, []);
+
   const timer = active.data ?? null;
   // Count from the exact press moment (shared from the main window) when known,
   // so the floating widget matches the tracker instead of the rounded server begin.

@@ -124,6 +124,10 @@
     "themeSystem": "sistem",
     "themeLight": "açık",
     "themeDark": "koyu",
+    "fontSize": "Yazı boyutu",
+    "fontSizeHint": "Tüm arayüzü ölçeklendirir.",
+    "fontFamily": "Yazı tipi",
+    "fontFamilyHint": "Tüm pencerelere uygulanır.",
     "accentColor": "Vurgu rengi",
     "animatedDigits": "Animasyonlu rakamlar",
     "animatedDigitsHint": "Değiştiğinde zamanlayıcı ve gelir rakamlarını canlandır",
@@ -252,6 +256,20 @@
   },
   "app": {
     "pinFloating": "Yüzen pencereyi sabitle"
+  },
+  "fontSizes": {
+    "small": "Küçük",
+    "default": "Varsayılan",
+    "large": "Büyük",
+    "xlarge": "Çok büyük"
+  },
+  "fontFamilies": {
+    "system": "Sistem",
+    "inter": "Inter",
+    "segoe": "Segoe UI",
+    "roboto": "Roboto",
+    "serif": "Serif",
+    "mono": "Monospace"
   },
   "accents": {
     "blue": "Mavi",

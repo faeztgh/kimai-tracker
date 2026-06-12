@@ -124,6 +124,10 @@
     "themeSystem": "System",
     "themeLight": "Hell",
     "themeDark": "Dunkel",
+    "fontSize": "Schriftgröße",
+    "fontSizeHint": "Skaliert die gesamte Oberfläche.",
+    "fontFamily": "Schriftart",
+    "fontFamilyHint": "Gilt für alle Fenster.",
     "accentColor": "Akzentfarbe",
     "animatedDigits": "Animierte Ziffern",
     "animatedDigitsHint": "Timer- und Einkommenszahlen bei Änderung animieren",
@@ -252,6 +256,20 @@
   },
   "app": {
     "pinFloating": "Schwebendes Fenster anheften"
+  },
+  "fontSizes": {
+    "small": "Klein",
+    "default": "Standard",
+    "large": "Groß",
+    "xlarge": "Sehr groß"
+  },
+  "fontFamilies": {
+    "system": "Systemstandard",
+    "inter": "Inter",
+    "segoe": "Segoe UI",
+    "roboto": "Roboto",
+    "serif": "Serif",
+    "mono": "Monospace"
   },
   "accents": {
     "blue": "Blau",

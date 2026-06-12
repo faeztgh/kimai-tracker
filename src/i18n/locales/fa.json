@@ -124,6 +124,10 @@
     "themeSystem": "سیستم",
     "themeLight": "روشن",
     "themeDark": "تیره",
+    "fontSize": "اندازه قلم",
+    "fontSizeHint": "کل رابط کاربری را مقیاس می‌دهد.",
+    "fontFamily": "خانواده قلم",
+    "fontFamilyHint": "در همه پنجره‌ها اعمال می‌شود.",
     "accentColor": "رنگ اصلی",
     "animatedDigits": "انیمیشن اعداد",
     "animatedDigitsHint": "اعداد تایمر و درآمد را هنگام تغییر انیمیت کن",
@@ -252,6 +256,20 @@
   },
   "app": {
     "pinFloating": "سنجاق کردن پنجره شناور"
+  },
+  "fontSizes": {
+    "small": "کوچک",
+    "default": "پیش‌فرض",
+    "large": "بزرگ",
+    "xlarge": "خیلی بزرگ"
+  },
+  "fontFamilies": {
+    "system": "سیستم",
+    "inter": "Inter",
+    "segoe": "Segoe UI",
+    "roboto": "Roboto",
+    "serif": "سریف",
+    "mono": "تک‌فاصله"
   },
   "accents": {
     "blue": "آبی",

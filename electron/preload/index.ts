@@ -43,7 +43,8 @@ type IncomingChannel =
   | "org:changed"
   | "hotkey:toggle-timer"
   | "idle:detected"
-  | "language:changed";
+  | "language:changed"
+  | "appearance:changed";
 
 const LABEL_FLAG = "--window-label=";
 const labelArg = process.argv.find((a) => a.startsWith(LABEL_FLAG));
@@ -131,6 +132,7 @@ const api = {
       "hotkey:toggle-timer",
       "idle:detected",
       "language:changed",
+      "appearance:changed",
     ];
     if (!allowed.includes(channel)) return () => {};
     const handler = (_e: IpcRendererEvent, ...args: unknown[]) =>

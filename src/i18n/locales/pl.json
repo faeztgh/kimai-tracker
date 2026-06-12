@@ -124,6 +124,10 @@
     "themeSystem": "systemowy",
     "themeLight": "jasny",
     "themeDark": "ciemny",
+    "fontSize": "Rozmiar czcionki",
+    "fontSizeHint": "Skaluje cały interfejs.",
+    "fontFamily": "Rodzina czcionek",
+    "fontFamilyHint": "Dotyczy wszystkich okien.",
     "accentColor": "Kolor akcentu",
     "animatedDigits": "Animowane cyfry",
     "animatedDigitsHint": "Animuj cyfry timera i dochodu przy zmianie",
@@ -252,6 +256,20 @@
   },
   "app": {
     "pinFloating": "Przypnij okno pływające"
+  },
+  "fontSizes": {
+    "small": "Mały",
+    "default": "Domyślny",
+    "large": "Duży",
+    "xlarge": "Bardzo duży"
+  },
+  "fontFamilies": {
+    "system": "Systemowy",
+    "inter": "Inter",
+    "segoe": "Segoe UI",
+    "roboto": "Roboto",
+    "serif": "Szeryfowa",
+    "mono": "Monospace"
   },
   "accents": {
     "blue": "Niebieski",

@@ -15,7 +15,13 @@ import {
 import { Constants } from "../constants";
 import { useActivityOptions, useProjectOptions } from "../hooks/usePickerData";
 import { LANGUAGE_OPTIONS } from "../i18n";
-import { ACCENTS, type ThemeMode } from "../lib/theme";
+import {
+  ACCENTS,
+  FONT_FAMILIES,
+  FONT_SIZES,
+  type FontSize,
+  type ThemeMode,
+} from "../lib/theme";
 import { useSettings } from "../store/settings";
 
 interface Props {
@@ -64,6 +70,10 @@ export function Settings({ onBack }: Props) {
     setIdleThreshold,
     language,
     setLanguage,
+    fontSize,
+    setFontSizePref,
+    fontFamily,
+    setFontFamilyPref,
   } = useSettings();
 
   const WEEK_START_OPTIONS = [0, 1, 2, 3, 4, 5, 6].map((day) => {
@@ -96,6 +106,19 @@ export function Settings({ onBack }: Props) {
     { id: "light", label: t("settings.themeLight") },
     { id: "dark", label: t("settings.themeDark") },
   ];
+
+  const FONT_SIZE_OPTIONS: { id: FontSize; label: string }[] = FONT_SIZES.map(
+    (s) => ({
+      id: s.id,
+      label: t(`fontSizes.${s.id}`),
+    }),
+  );
+
+  const FONT_FAMILY_PICKER_OPTIONS = FONT_FAMILIES.map((f, i) => ({
+    id: i,
+    label: t(`fontFamilies.${f.id}`),
+    fontFamily: f.stack,
+  }));
 
   const LANGUAGE_PICKER_OPTIONS = LANGUAGE_OPTIONS.map((l, i) => ({
     id: i,
@@ -175,6 +198,32 @@ export function Settings({ onBack }: Props) {
                 value={themeMode}
                 onChange={(m) => void setThemeMode(m)}
                 capitalize
+              />
+            </Stacked>
+            <Stacked
+              label={t("settings.fontSize")}
+              hint={t("settings.fontSizeHint")}
+            >
+              <SegmentedControl
+                options={FONT_SIZE_OPTIONS}
+                value={fontSize}
+                onChange={(s) => void setFontSizePref(s)}
+                capitalize
+              />
+            </Stacked>
+            <Stacked
+              label={t("settings.fontFamily")}
+              hint={t("settings.fontFamilyHint")}
+            >
+              <Picker
+                options={FONT_FAMILY_PICKER_OPTIONS}
+                value={FONT_FAMILIES.findIndex((f) => f.id === fontFamily)}
+                onChange={(id) => {
+                  const family = FONT_FAMILIES[id ?? 0];
+                  if (family) void setFontFamilyPref(family.id);
+                }}
+                placeholder={t("settings.fontFamily")}
+                searchable={false}
               />
             </Stacked>
             <Stacked label={t("settings.accentColor")}>

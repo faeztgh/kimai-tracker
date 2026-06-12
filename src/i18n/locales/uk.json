@@ -124,6 +124,10 @@
     "themeSystem": "системна",
     "themeLight": "світла",
     "themeDark": "темна",
+    "fontSize": "Розмір шрифту",
+    "fontSizeHint": "Масштабує весь інтерфейс.",
+    "fontFamily": "Шрифт",
+    "fontFamilyHint": "Застосовується до всіх вікон.",
     "accentColor": "Колір акценту",
     "animatedDigits": "Анімовані цифри",
     "animatedDigitsHint": "Анімувати цифри таймера та доходу при зміні",
@@ -252,6 +256,20 @@
   },
   "app": {
     "pinFloating": "Закріпити плаваюче вікно"
+  },
+  "fontSizes": {
+    "small": "Маленький",
+    "default": "За замовчуванням",
+    "large": "Великий",
+    "xlarge": "Дуже великий"
+  },
+  "fontFamilies": {
+    "system": "Системний",
+    "inter": "Inter",
+    "segoe": "Segoe UI",
+    "roboto": "Roboto",
+    "serif": "З засічками",
+    "mono": "Моноширинний"
   },
   "accents": {
     "blue": "Синій",
