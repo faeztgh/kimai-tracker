@@ -10,7 +10,8 @@ Kimai web UI. Runs on **Windows, macOS and Linux**.
 [![Platforms](https://img.shields.io/badge/platforms-Windows%20%7C%20macOS%20%7C%20Linux-444)](https://github.com/faeztgh/kimai-tracker/releases)
 
 > Think of it as a desktop app that talks to your own Kimai server.
-> Point it at your Kimai URL, paste an API token once, and track time from the tray.
+> Point it at your Kimai URL (or several), paste an API token once per server, and track time from
+> the tray.
 
 ## Features
 
@@ -20,13 +21,25 @@ Kimai web UI. Runs on **Windows, macOS and Linux**.
   the description, project · activity, duration and time range.
 - **Per-entry actions** from a row menu: resume, edit, duplicate, or split an entry at its midpoint.
   You can also discard a running timer you started by mistake.
-- **Summary footer** with Today / This week / This month totals, live while a timer runs (toggleable).
+- **Summary footer** with Today / This week / This month totals (and optional income), live while a
+  timer runs (toggleable).
 - **Dashboard** with running status, totals, a recent-days chart and a time-by-project breakdown.
-- **Reports** for a chosen range (week / month / last 7 / last 30 days): totals, a billable split,
-  a per-day chart and by-project / by-activity breakdowns.
+- **Reports** for a chosen range (week / month / last 7 / last 30 days or a custom range): totals,
+  a billable split, a per-day chart, and by-project / by-activity / by-tag breakdowns. Filter by
+  project, activity, tag, or billable-only. Export to **CSV**, **Excel (.xlsx)**, or **PDF**.
+- **Income tracking** — set an hourly rate and currency; optional secondary currency with an
+  exchange rate for converted totals in the summary, dashboard, and reports.
+- **Idle detection** — when you're away, prompts to discard idle time and restart the timer
+  (threshold configurable in Settings).
+- **Multiple organisations** — connect several Kimai servers, switch between them, and manage each
+  from Settings (Bearer token or legacy header auth for old Kimai versions).
 - **Floating widget** — an always-on-top, draggable mini window showing the running entry and timer.
 - **System tray** to toggle the window, pin the widget, stop the timer, open settings or quit.
-- **Light / dark / system theme** and a configurable default project + activity.
+- **Appearance** — light / dark / system theme, accent color, font size and family, week-start day,
+  and a configurable default project + activity.
+- **17 languages** (including RTL for Persian and Arabic) — switch UI language in Settings.
+- **Global shortcuts** — `Ctrl/Cmd+Shift+K` to show/hide the window, `Ctrl/Cmd+Shift+S` to start or
+  stop the timer (full list in Settings).
 - **Stays in sync** by polling Kimai's active timer, so it self-corrects when you change a timer in
   the web UI or on another device.
 
@@ -43,9 +56,12 @@ Builds are produced for both x64 and arm64.
 
 ## First run
 
-1. In Kimai, create an API token under your profile → API access.
-2. Launch Kimai Tracker. On the setup screen enter your server URL and the token, then **Test & Save**.
-3. Use the tray icon or `Ctrl/Cmd+Shift+K` to toggle the window. Pin the floating widget from the header.
+1. In Kimai, create an API token under your profile → API access (or use username + API password on
+   old Kimai servers — enable **legacy header auth** on the setup screen).
+2. Launch Kimai Tracker. On the setup screen enter your organisation name, server URL, and
+   credentials, then **Test & Save**. Add more servers later from Settings.
+3. Use the tray icon or `Ctrl/Cmd+Shift+K` to toggle the window; `Ctrl/Cmd+Shift+S` to start or
+   stop the timer. Pin the floating widget from the header.
 
 Your token is encrypted at rest with the OS keychain (DPAPI / Keychain / libsecret via Electron's
 `safeStorage`) and never leaves the main process. On Linux with no keyring available it falls back to
@@ -76,12 +92,19 @@ pnpm dist:mac     # .dmg
 pnpm dist:linux   # .AppImage + .deb
 ```
 
+## Test
+
+```bash
+pnpm test         # Vitest unit tests
+pnpm test:e2e     # Playwright end-to-end tests
+```
+
 ## How it works
 
 ```
 Renderer (React, Chromium, contextIsolation on)
   └─ window.api  ── contextBridge ──▶  Main process (Node)
-                                         ├─ Kimai HTTP (Node fetch + Bearer token)
+                                         ├─ Kimai HTTP (Node fetch + Bearer or legacy auth)
                                          ├─ token vault (safeStorage, encrypted at rest)
                                          ├─ prefs.json (window position, non-secret settings)
                                          ├─ tray + two BrowserWindows
@@ -92,7 +115,7 @@ Renderer (React, Chromium, contextIsolation on)
 ```
 
 Every Kimai request goes out from the main process, not the renderer. That avoids webview CORS and
-keeps the bearer token out of the renderer entirely. Both windows share one renderer bundle and learn
+keeps credentials out of the renderer entirely. Both windows share one renderer bundle and learn
 their role (`main` or `floating`) from a launch argument the preload reads.
 
 ## Releases & versioning
@@ -105,8 +128,9 @@ auto-update feed for `electron-updater`.
 
 ## Tech stack
 
-Electron, React 18/19, TypeScript and Vite (built with electron-vite), Tailwind CSS, TanStack Query
-for polling and caching, and Zustand for state. Packaged with electron-builder.
+Electron, React 19, TypeScript and Vite (built with electron-vite), Tailwind CSS, TanStack Query
+for polling and caching, i18next for localization, and Zustand for state. Packaged with
+electron-builder.
 
 ## Support this project
 
