@@ -117,8 +117,8 @@ difference:
 - **⭐ Star the repo** — [give it a star on GitHub](https://github.com/faeztgh/kimai-tracker). It
   costs nothing, takes a second, and is the single best way to boost visibility so more people
   discover the project.
-- **💖 Donate / sponsor** — if this app earns a place in your daily workflow, please consider
-  supporting the creator via [GitHub Sponsors](https://github.com/sponsors/faeztgh). Even a small
+- **💖 Donate** — if this app earns a place in your daily workflow, please consider
+  [buying the creator a coffee ☕](https://www.faez.pro/support). Even a small
   one-time tip directly funds the time spent on fixes, new features, and ongoing maintenance.
 - **🛠️ Contribute** — bug reports, feature ideas, and pull requests are hugely appreciated. See
   [CONTRIBUTING](./CONTRIBUTING.md) to get started; even improving docs or filing a clear issue is a
