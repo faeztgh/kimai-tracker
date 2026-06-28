@@ -155,7 +155,7 @@ you for your support! 🙏
 
 ## Author
 
-Built and maintained by **[faeztgh](https://github.com/faeztgh)**. Issues and pull requests are
+Built and maintained by **[faeztgh](https://www.faez.pro?utm_source=github_kimai-tracker)**. Issues and pull requests are
 welcome — see [CONTRIBUTING](./CONTRIBUTING.md).
 
 ## License
